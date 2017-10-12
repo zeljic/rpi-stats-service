@@ -1,0 +1,6 @@
+[package]
+name = "rpi-stats-service"
+version = "0.1.0"
+authors = ["Djordje Zeljic <zeljic@gmail.com>"]
+
+[dependencies]
