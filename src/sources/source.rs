@@ -1,5 +1,3 @@
-extern crate rusqlite;
-
 use std::sync::{Arc, Mutex};
 use db::wrapper::Wrapper;
 
