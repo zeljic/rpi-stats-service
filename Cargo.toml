@@ -1,8 +1,16 @@
+[workspace]
+members = ["web", "client", "collector", "commons"]
+
 [package]
-authors = ["Djordje Zeljic <zeljic@gmail.com>"]
+authors = ["Đorđe Zeljić <zeljic@gmail.com>"]
 name = "rpi-stats-service"
 version = "0.1.0"
+license-file = "LICENSE"
+description = "Simple RPI Services"
 
 [dependencies]
-regex = "^0.2.3"
-rusqlite = "^0.13.0"
+regex = "0.2.10"
+
+[dependencies.rusqlite]
+version = "0.13.0"
+features = ["bundled"]
