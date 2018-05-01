@@ -9,7 +9,7 @@ license-file = "LICENSE"
 description = "Simple RPI Services"
 
 [dependencies]
-regex = "0.2.10"
+regex = "1.0.0"
 
 [dependencies.rusqlite]
 version = "0.13.0"
