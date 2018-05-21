@@ -3,12 +3,6 @@ os:
   - linux
   - osx
 rust:
-  - stable
-  - beta
   - nightly
 script:
   - cargo build --verbose --all
-matrix:
-  allow_failures:
-    - rust: beta
-    - rust: nightly
