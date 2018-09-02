@@ -9,11 +9,8 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate commons;
 
-use diesel::sqlite::SqliteConnection;
-use models::Instance;
-
-mod db;
 mod models;
 mod schema;
 
