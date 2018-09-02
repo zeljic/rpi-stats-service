@@ -17,7 +17,7 @@ pub fn init_pool() -> SqlitePool {
 
 	let manager = ConnectionManager::<SqliteConnection>::new(database_url);
 
-	Pool::new(manager).expect("Database Poll is not created")
+	Pool::new(manager).expect("Database Pool is not created")
 }
 
 pub struct DbConn(pub PooledConnection<ConnectionManager<SqliteConnection>>);

@@ -8,12 +8,22 @@ extern crate rocket;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-extern crate serde_json;
 extern crate commons;
+extern crate serde_json;
+
+use commons::db::init_pool;
+use commons::db::DbConn;
 
 mod models;
 mod schema;
 
+#[get("/")]
+fn index() -> &'static str {
+	"Zdravo web svete"
+}
+
 fn main() {
-	println!("Zdravo, collector!");
+	let rocket = rocket::ignite();
+
+	rocket.manage(init_pool()).mount("/", routes![index]).launch();
 }

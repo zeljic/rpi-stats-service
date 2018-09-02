@@ -30,4 +30,3 @@ pub struct Log {
 	pub date_time: i32,
 	pub value: f32,
 }
-
