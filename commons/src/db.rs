@@ -20,22 +20,22 @@ pub fn init_pool() -> SqlitePool {
 	Pool::new(manager).expect("Database Pool is not created")
 }
 
-pub struct DbConn(pub PooledConnection<ConnectionManager<SqliteConnection>>);
+pub struct PooledSqliteConnection(pub PooledConnection<ConnectionManager<SqliteConnection>>);
 
-impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
+impl<'a, 'r> FromRequest<'a, 'r> for PooledSqliteConnection {
 	type Error = ();
 
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
 		let pool = request.guard::<State<SqlitePool>>()?;
 
 		match pool.get() {
-			Ok(conn) => Outcome::Success(DbConn(conn)),
+			Ok(conn) => Outcome::Success(PooledSqliteConnection(conn)),
 			Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
 		}
 	}
 }
 
-impl Deref for DbConn {
+impl Deref for PooledSqliteConnection {
 	type Target = SqliteConnection;
 
 	fn deref(&self) -> &Self::Target {
