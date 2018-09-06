@@ -1,6 +1,6 @@
 table! {
 	instance (id) {
-		id -> Nullable<Integer>,
+		id -> Integer,
 		uuid -> Text,
 		name -> Text,
 		enabled -> Bool,
@@ -9,7 +9,7 @@ table! {
 
 table! {
 	log (id) {
-		id -> Nullable<Integer>,
+		id -> Integer,
 		instance_id -> Integer,
 		log_type_id -> Integer,
 		date_time -> Integer,
@@ -19,7 +19,7 @@ table! {
 
 table! {
 	log_type (id) {
-		id -> Nullable<Integer>,
+		id -> Integer,
 		name -> Text,
 		enabled -> Bool,
 	}

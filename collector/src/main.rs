@@ -1,8 +1,8 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-extern crate rocket;
 extern crate commons;
+extern crate rocket;
 
 use commons::db::init_pool;
 

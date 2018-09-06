@@ -1,5 +1,5 @@
 create table log (
-    id integer primary key autoincrement,
+    id integer not null primary key autoincrement,
     instance_id integer not null,
     log_type_id integer not null,
     `date_time` integer not null,
