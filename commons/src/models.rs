@@ -19,7 +19,7 @@ pub struct Instance {
 	pub enabled: bool,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "instance"]
 pub struct NewInstance {
 	pub uuid: String,
@@ -36,7 +36,7 @@ pub struct LogType {
 	pub enabled: bool,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "log_type"]
 pub struct NewLogType {
 	pub name: String,
@@ -56,7 +56,7 @@ pub struct Log {
 	pub value: f32,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
 #[table_name = "log"]
 pub struct NewLog {
 	pub instance_id: i32,
