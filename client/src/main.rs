@@ -1,25 +1,32 @@
 extern crate crypto;
+extern crate dotenv;
 #[macro_use]
 extern crate lazy_static;
 
-#[cfg(linux)]
+use dotenv::dotenv;
+use std::env;
+
+use std::fs::File;
+use std::io::prelude::*;
+
 #[inline(always)]
 fn get_machine_id() -> String {
-	use std::fs::File;
-	use std::io::prelude::*;
+	match env::var("CLIENT_MACHINE_ID") {
+		Ok(v) => v,
+		Err(_) => {
+			if cfg!(unix) {
+				let mut f = File::open("/etc/machine-id").unwrap();
+				let mut content: String = String::new();
 
-	let mut f = File::open("/etc/machine-id").unwrap();
-	let mut content: String = String::new();
+				f.read_to_string(&mut content).unwrap();
 
-	f.read_to_string(&mut content).unwrap();
-
-	content
-}
-
-#[cfg(not(linux))]
-#[inline(always)]
-fn get_machine_id() -> String {
-	"windows_machine_id".to_string()
+				content
+			} else {
+				eprintln!("Unable to get unique machine id, add env variable CLIENT_MACHINE_ID if there isn't /etc/machine-id on the system.");
+				unimplemented!()
+			}
+		}
+	}
 }
 
 #[inline(always)]
@@ -39,5 +46,7 @@ lazy_static! {
 }
 
 fn main() {
+	dotenv().ok();
+
 	println!("MACHINE_ID: {}; UUID: {};", *MACHINE_ID, *UUID);
 }

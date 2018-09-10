@@ -6,3 +6,4 @@ authors = ["Đorđe Zeljić <zeljic@gmail.com>"]
 [dependencies]
 rust-crypto = "0.2.36"
 lazy_static = "1.1.0"
+dotenv = "0.13.0"
