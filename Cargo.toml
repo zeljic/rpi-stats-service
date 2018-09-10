@@ -1,2 +1,2 @@
 [workspace]
-members = ["web", "client", "collector", "commons"]
+members = ["client", "collector", "commons"]
