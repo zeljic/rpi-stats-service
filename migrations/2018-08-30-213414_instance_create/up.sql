@@ -1,6 +1,6 @@
 create table instance (
     id integer not null primary key autoincrement,
-    uuid varchar(36) not null,
+    uuid varchar(64) not null,
     name varchar(16) not null,
     enabled boolean not null default 0
 );
