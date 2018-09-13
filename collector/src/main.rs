@@ -1,13 +1,23 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-extern crate commons;
+extern crate dotenv;
+extern crate r2d2;
+extern crate r2d2_sqlite;
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
+extern crate rusqlite;
 
-use commons::db::init_pool;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde;
+extern crate serde_json;
+
+use db::pool::init_pool;
 use rocket_contrib::{Json, Value};
+
+mod db;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -23,11 +33,14 @@ fn error_404() -> Json<Value> {
 }
 
 fn main() {
-	let rocket = rocket::ignite();
+	let pool = init_pool();
 
-	rocket
-		.manage(init_pool())
+	rocket::ignite()
+		.manage(pool)
 		.mount("/", routes![index])
+		.mount("/api/log", routes![])
+		.mount("/api/log_type", routes![])
+		.mount("/api/instance", routes![])
 		.catch(catchers![error_404])
 		.launch();
 }
