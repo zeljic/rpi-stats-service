@@ -19,7 +19,6 @@ use db::models::CRUD;
 use db::pool::init_pool;
 use db::pool::PoolWrapper;
 use rocket_contrib::{Json, Value};
-use std::error::Error;
 
 mod db;
 
@@ -44,17 +43,23 @@ fn error_400() -> Json<Value> {
 	}))
 }
 
-#[post("/", format = "application/json", data = "<json_log>")]
-fn log_create(instance: Instance, conn: PoolWrapper, json_log: Json<Log>) -> Json<Value> {
-	println!("{:?}", instance);
+#[post("/", format = "application/json", data = "<data>")]
+fn log_create(conn: PoolWrapper, instance: Instance, data: Json<Value>) -> Json<Value> {
+	let log = Log::new(&*conn, &instance, &data);
 
-	match json_log.into_inner().create(&*conn) {
-		Ok(_log) => Json(json!({
+	match log {
+		Ok(log) => match log.create(&*conn) {
+			Ok(_) => Json(json!({
 				"status": true
 			})),
-		Err(e) => Json(json!({
+			_ => Json(json!({
 				"status": false,
-				"reason": e.description()
+				"reason": "Unable to create new log"
+			})),
+		},
+		Err(msg) => Json(json!({
+				"status": false,
+				"reason": msg
 			})),
 	}
 }
