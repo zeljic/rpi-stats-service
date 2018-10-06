@@ -7,12 +7,12 @@ authors = ["Đorđe Zeljić <zeljic@gmail.com>"]
 dotenv = "0.13.0"
 
 serde = "1.0.79"
-serde_json = "1.0.28"
+serde_json = "1.0.32"
 serde_derive = "1.0.79"
 
-rocket = "0.3.16"
-rocket_codegen = "0.3.16"
-rocket_contrib = { version = "0.3.16", default-features = false, features = ["json"] }
+rocket = "0.3.17"
+rocket_codegen = "0.3.17"
+rocket_contrib = { version = "0.3.17", default-features = false, features = ["json"] }
 
 r2d2 = "0.8.2"
 r2d2_sqlite = "0.6.0"
