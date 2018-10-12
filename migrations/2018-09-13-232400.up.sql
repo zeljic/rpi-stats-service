@@ -2,6 +2,7 @@ create table `instance` (
 	`id` integer not null primary key autoincrement,
 	`uuid` varchar(64) not null unique,
 	`name` varchar(16) not null,
+	`description` text,
 	`enabled` boolean not null default 0
 );
 

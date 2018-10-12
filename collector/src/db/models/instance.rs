@@ -16,6 +16,7 @@ pub struct Instance {
 	pub uuid: String,
 	pub name: String,
 	pub enabled: bool,
+	pub description: String
 }
 
 impl CRUD for Instance {
@@ -37,10 +38,10 @@ impl CRUD for Instance {
 
 	fn create(&self, conn: &Connection) -> Result<usize, Error> {
 		let mut statement = conn
-			.prepare("insert into `instance` (`uuid`, `name`) values (?, ?);")
+			.prepare("insert into `instance` (`uuid`, `name`, `description`) values (?, ?);")
 			.expect("Unable to prepare statement");
 
-		statement.execute(&[&self.uuid, &self.name])
+		statement.execute(&[&self.uuid, &self.name, &self.description])
 	}
 }
 
@@ -67,6 +68,7 @@ impl<'a, 'stmt> From<Row<'a, 'stmt>> for Instance {
 			uuid: row.get("uuid"),
 			name: row.get("name"),
 			enabled: row.get("enabled"),
+			description: row.get("description")
 		}
 	}
 }
