@@ -12,7 +12,7 @@ use rusqlite::Statement;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Instance {
-	pub id: Option<i64>,
+	pub id: Option<u32>,
 	pub uuid: String,
 	pub name: String,
 	pub description: String,
@@ -22,7 +22,7 @@ pub struct Instance {
 impl CRUD for Instance {
 	type Output = Self;
 
-	fn read(conn: &Connection, id: i64) -> Option<Self::Output> {
+	fn read(conn: &Connection, id: u32) -> Option<Self::Output> {
 		let mut statement: Statement = conn
 			.prepare("select * from `instance` where `id` = ?;")
 			.expect("Unable to prepare statement");

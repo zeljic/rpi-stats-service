@@ -6,10 +6,10 @@ use rusqlite::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Log {
-	pub id: Option<i64>,
-	pub instance_id: i64,
-	pub log_type_id: i64,
-	pub date_time: i64,
+	pub id: Option<u32>,
+	pub instance_id: u32,
+	pub log_type_id: u32,
+	pub date_time: u32,
 	pub value: f64,
 	pub enabled: bool,
 }
@@ -17,7 +17,7 @@ pub struct Log {
 impl CRUD for Log {
 	type Output = Log;
 
-	fn read(_conn: &Connection, _id: i64) -> Option<Self::Output> {
+	fn read(_conn: &Connection, _id: u32) -> Option<Self::Output> {
 		unimplemented!()
 	}
 
@@ -78,6 +78,8 @@ impl Log {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogCreateRequest {
 	pub log_type_name: String,
+	#[serde(skip_serializing, skip_deserializing)]
+	pub log_type_id: u32,
 	pub value: f64,
-	pub date_time: i64,
+	pub date_time: u32,
 }

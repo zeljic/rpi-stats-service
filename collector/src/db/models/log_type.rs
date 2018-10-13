@@ -3,7 +3,7 @@ use rusqlite::Row;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogType {
-	pub id: Option<i64>,
+	pub id: Option<u32>,
 	pub name: String,
 	pub enabled: bool,
 }

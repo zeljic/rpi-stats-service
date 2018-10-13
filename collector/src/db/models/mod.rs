@@ -9,7 +9,7 @@ pub mod mesh;
 pub trait CRUD {
 	type Output;
 
-	fn read(conn: &Connection, id: i64) -> Option<Self::Output>;
+	fn read(conn: &Connection, id: u32) -> Option<Self::Output>;
 	fn create(&self, conn: &Connection) -> Result<usize, Error>;
 }
 
