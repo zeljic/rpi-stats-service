@@ -15,6 +15,7 @@ extern crate serde_json;
 
 use db::models::instance::Instance;
 use db::models::log::Log;
+use db::models::log::LogCreateRequest;
 use db::models::CRUD;
 use db::pool::init_pool;
 use db::pool::PoolWrapper;
@@ -44,17 +45,17 @@ fn error_400() -> Json<Value> {
 }
 
 #[post("/", format = "application/json", data = "<data>")]
-fn log_create(conn: PoolWrapper, instance: Instance, data: Json<Value>) -> Json<Value> {
-	let log = Log::new(&*conn, &instance, &data);
+fn log_create(conn: PoolWrapper, instance: Instance, data: Json<LogCreateRequest>) -> Json<Value> {
+	let log = Log::new(&*conn, &instance, &data.into_inner());
 
 	match log {
 		Ok(log) => match log.create(&*conn) {
 			Ok(_) => Json(json!({
 				"status": true
 			})),
-			_ => Json(json!({
+			Err(msg) => Json(json!({
 				"status": false,
-				"reason": "Unable to create new log"
+				"reason": format!("{:?}", msg)
 			})),
 		},
 		Err(msg) => Json(json!({

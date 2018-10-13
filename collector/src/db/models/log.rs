@@ -1,7 +1,6 @@
 use db::models::instance::Instance;
 use db::models::log_type::LogType;
 use db::models::CRUD;
-use rocket_contrib::Json;
 use rusqlite::Connection;
 use rusqlite::Error;
 
@@ -23,7 +22,7 @@ impl CRUD for Log {
 	}
 
 	fn create(&self, conn: &Connection) -> Result<usize, Error> {
-		let mut statement = conn.prepare("insert into `log` (`instance_id`, `log_type_id`, `date_time`, `value`, `enabled`) values (?, ?, ?, ?, ?);").expect("Unable to prepare statement");
+		let mut statement = conn.prepare("insert into `log` (`instance_id`, `log_type_id`, `date_time`, `value`, `enabled`) values (?, ?, ?, ?, ?);")?;
 
 		statement.execute(&[
 			&self.instance_id,
@@ -36,9 +35,11 @@ impl CRUD for Log {
 }
 
 impl Log {
-	pub fn new(conn: &Connection, instance: &Instance, data: &Json) -> Result<Self, String> {
-		println!("{:?}", data);
-
+	pub fn new(
+		conn: &Connection,
+		instance: &Instance,
+		log_create_request: &LogCreateRequest,
+	) -> Result<Self, String> {
 		let mut log = Log {
 			id: None,
 			instance_id: 0,
@@ -55,33 +56,28 @@ impl Log {
 			None => return Err(String::from("Unable to read instance id")),
 		}
 
-		match data["log_type_name"].as_str() {
-			Some(v) => match LogType::get_by_name(&*conn, v) {
-				Some(log_type) => match log_type.id {
-					Some(id) => {
-						log.log_type_id = id;
-					}
-					None => return Err(String::from("There isn't id")),
-				},
-				None => return Err(String::from("Unable to find log_type by log_type_name")),
+		match LogType::get_by_name(&*conn, &log_create_request.log_type_name) {
+			Some(log_type) => match log_type.id {
+				Some(id) => {
+					log.log_type_id = id;
+				}
+				None => return Err(String::from("There isn't id")),
 			},
-			None => return Err(String::from("Unable to read log_type_name from request")),
+			None => return Err(String::from("Unable to find log_type by log_type_name")),
 		}
 
-		match data["value"].as_f64() {
-			Some(v) => {
-				log.value = v;
-			}
-			None => return Err(String::from("Unable to read value from request")),
-		}
-
-		match data["date_time"].as_i64() {
-			Some(v) => log.date_time = v,
-			None => return Err(String::from("Unable to read date_time from request")),
-		}
+		log.value = log_create_request.value;
+		log.date_time = log_create_request.date_time;
 
 		log.enabled = true;
 
 		Ok(log)
 	}
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LogCreateRequest {
+	pub log_type_name: String,
+	pub value: f64,
+	pub date_time: i64,
 }
