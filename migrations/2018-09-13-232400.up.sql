@@ -23,6 +23,22 @@ create table `log` (
 	foreign key(`log_type_id`) references log_type(`id`)
 );
 
+create table `mesh` (
+    `id` integer not null primary key autoincrement,
+    `name` varchar(16) not null,
+    `description` text,
+    `enabled` boolean not null default 0
+);
+
+create table `mesh_instance` (
+    `mesh_id` integer not null,
+    `instance_id` integer not null,
+    `enabled` boolean not null default 0,
+    foreign key(`mesh_id`) references mesh(`id`),
+    foreign key(`instance_id`) references instance(`id`)
+);
+
 create index `idx_instance_id` on `instance` (`id`);
 create index `idx_log_type_id` on `log_type` (`id`);
 create index `idx_log_id` on `log` (`id`);
+create index `idx_mesh` on `mesh` (`id`);

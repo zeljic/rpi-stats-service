@@ -4,6 +4,7 @@ use rusqlite::Error;
 pub mod instance;
 pub mod log;
 pub mod log_type;
+pub mod mesh;
 
 pub trait CRUD {
 	type Output;
