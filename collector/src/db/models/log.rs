@@ -1,6 +1,6 @@
-use db::models::instance::Instance;
-use db::models::log_type::LogType;
-use db::models::CRUD;
+use crate::db::models::instance::Instance;
+use crate::db::models::log_type::LogType;
+use crate::db::models::CRUD;
 use rusqlite::Connection;
 use rusqlite::Error;
 

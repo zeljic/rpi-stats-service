@@ -1,5 +1,5 @@
-use db::models::CRUD;
-use db::pool::PoolWrapper;
+use crate::db::models::CRUD;
+use crate::db::pool::PoolWrapper;
 use rocket::http::Status;
 use rocket::request;
 use rocket::request::FromRequest;

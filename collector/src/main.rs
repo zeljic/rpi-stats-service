@@ -13,12 +13,12 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
-use db::models::instance::Instance;
-use db::models::log::Log;
-use db::models::log::LogCreateRequest;
-use db::models::CRUD;
-use db::pool::init_pool;
-use db::pool::PoolWrapper;
+use crate::db::models::instance::Instance;
+use crate::db::models::log::Log;
+use crate::db::models::log::LogCreateRequest;
+use crate::db::models::CRUD;
+use crate::db::pool::init_pool;
+use crate::db::pool::PoolWrapper;
 use rocket_contrib::{Json, Value};
 
 mod db;
