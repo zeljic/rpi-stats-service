@@ -1,6 +1,7 @@
 use crate::db::models::instance::Instance;
 use crate::db::models::log_type::LogType;
 use crate::db::models::CRUD;
+use rusqlite::types::ToSql;
 use rusqlite::Connection;
 use rusqlite::Error;
 
@@ -22,15 +23,17 @@ impl CRUD for Log {
 	}
 
 	fn create(&self, conn: &Connection) -> Result<usize, Error> {
-		let mut statement = conn.prepare("insert into `log` (`instance_id`, `log_type_id`, `date_time`, `value`, `enabled`) values (?, ?, ?, ?, ?);")?;
+		let mut statement = conn.prepare("insert into `log` (`instance_id`, `log_type_id`, `date_time`, `value`, `enabled`) values (?1, ?2, ?3, ?4, ?5);")?;
 
-		statement.execute(&[
+		let values: &[&ToSql] = &[
 			&self.instance_id,
 			&self.log_type_id,
 			&self.date_time,
 			&self.value,
 			&self.enabled,
-		])
+		];
+
+		statement.execute(values)
 	}
 }
 
