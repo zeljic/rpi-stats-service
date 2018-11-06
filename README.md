@@ -1,5 +1,5 @@
-# Raspberry PI Stats Service
-Workspace of collector (server), client, common (dylib)
+# Linden Collector Service (and Rust Client)
+Workspace of Linden Collector (server), and Linden Rust Client
 
 System/OS|Build Result
 ----:|----
