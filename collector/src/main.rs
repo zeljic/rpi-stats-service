@@ -1,9 +1,9 @@
-#![feature(plugin, decl_macro)]
-#![plugin(rocket_codegen)]
+#![feature(proc_macro_hygiene, decl_macro, plugin)]
 
 extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_sqlite;
+#[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
@@ -19,7 +19,8 @@ use crate::db::models::log::LogCreateRequest;
 use crate::db::models::CRUD;
 use crate::db::pool::init_pool;
 use crate::db::pool::PoolWrapper;
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json::Json;
+use rocket_contrib::json::JsonValue;
 
 mod db;
 
@@ -29,7 +30,7 @@ fn index() -> &'static str {
 }
 
 #[catch(404)]
-fn error_404() -> Json<Value> {
+fn error_404() -> Json<JsonValue> {
 	Json(json!({
 		"status": false,
 		"reason": "Handler Not Found: Unable to handle this request"
@@ -37,7 +38,7 @@ fn error_404() -> Json<Value> {
 }
 
 #[catch(400)]
-fn error_400() -> Json<Value> {
+fn error_400() -> Json<JsonValue> {
 	Json(json!({
 		"status": false,
 		"reason": "Bad Request: Unable to handle this request"
@@ -45,7 +46,7 @@ fn error_400() -> Json<Value> {
 }
 
 #[post("/", format = "application/json", data = "<data>")]
-fn log_create(conn: PoolWrapper, instance: Instance, data: Json<LogCreateRequest>) -> Json<Value> {
+fn log_create(conn: PoolWrapper, instance: Instance, data: Json<LogCreateRequest>) -> Json<JsonValue> {
 	let log = Log::new(&*conn, &instance, &data.into_inner());
 
 	match log {
@@ -74,6 +75,6 @@ fn main() {
 		.mount("/api/log", routes![log_create])
 		.mount("/api/log_type", routes![])
 		.mount("/api/instance", routes![])
-		.catch(catchers![error_400, error_404])
+		.register(catchers![error_400, error_404])
 		.launch();
 }
