@@ -38,7 +38,16 @@ create table `mesh_instance` (
     foreign key(`instance_id`) references instance(`id`)
 );
 
+create table `user` (
+    `id` integer not null primary key autoincrement,
+    `name` varchar(64),
+    `email` varchar(320),
+    `password` varchar(64),
+    `enabled` boolean not null default 0
+);
+
 create index `idx_instance_id` on `instance` (`id`);
 create index `idx_log_type_id` on `log_type` (`id`);
 create index `idx_log_id` on `log` (`id`);
-create index `idx_mesh` on `mesh` (`id`);
+create index `idx_mesh_id` on `mesh` (`id`);
+create index `idx_user_id` on `user` (`id`);
