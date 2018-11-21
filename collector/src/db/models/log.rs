@@ -59,7 +59,7 @@ impl Log {
 			None => return Err(String::from("Unable to read instance id")),
 		}
 
-		match LogType::get_by_name(&*conn, &log_create_request.log_type_name) {
+		match LogType::get_by_name(&conn, &log_create_request.log_type_name) {
 			Some(log_type) => match log_type.id {
 				Some(id) => {
 					log.log_type_id = id;

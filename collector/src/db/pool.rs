@@ -30,7 +30,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for PoolWrapper {
 	type Error = ();
 
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-		let pool = request.guard::<State<Pool<SqliteConnectionManager>>>()?;
+		let pool = request
+			.guard::<State<Pool<SqliteConnectionManager>>>()
+			.expect("Unable to get <State<Pool<SqliteConnectionManager>>>");
 
 		match pool.get() {
 			Ok(pooled_connection) => Outcome::Success(PoolWrapper(pooled_connection)),

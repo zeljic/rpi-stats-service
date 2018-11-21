@@ -5,6 +5,7 @@ pub mod instance;
 pub mod log;
 pub mod log_type;
 pub mod mesh;
+pub mod user;
 
 pub trait CRUD {
 	type Output;

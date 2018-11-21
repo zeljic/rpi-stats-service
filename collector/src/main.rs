@@ -11,23 +11,19 @@ extern crate rusqlite;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate crypto;
+extern crate rand;
 extern crate serde_json;
 
-use crate::db::models::instance::Instance;
-use crate::db::models::log::Log;
-use crate::db::models::log::LogCreateRequest;
-use crate::db::models::CRUD;
 use crate::db::pool::init_pool;
-use crate::db::pool::PoolWrapper;
+use crate::session_manager::init_session_manager;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
+use std::sync::RwLock;
 
 mod db;
-
-#[get("/")]
-fn index() -> &'static str {
-	"Zdravo web svete"
-}
+mod routes;
+mod session_manager;
 
 #[catch(404)]
 fn error_404() -> Json<JsonValue> {
@@ -45,36 +41,12 @@ fn error_400() -> Json<JsonValue> {
 	}))
 }
 
-#[post("/", format = "application/json", data = "<data>")]
-fn log_create(conn: PoolWrapper, instance: Instance, data: Json<LogCreateRequest>) -> Json<JsonValue> {
-	let log = Log::new(&*conn, &instance, &data.into_inner());
-
-	match log {
-		Ok(log) => match log.create(&*conn) {
-			Ok(_) => Json(json!({
-				"status": true
-			})),
-			Err(msg) => Json(json!({
-				"status": false,
-				"reason": format!("{:?}", msg)
-			})),
-		},
-		Err(msg) => Json(json!({
-				"status": false,
-				"reason": msg
-			})),
-	}
-}
-
 fn main() {
-	let pool = init_pool();
-
 	rocket::ignite()
-		.manage(pool)
-		.mount("/", routes![index])
-		.mount("/api/log", routes![log_create])
-		.mount("/api/log_type", routes![])
-		.mount("/api/instance", routes![])
+		.manage(init_pool())
+		.manage(RwLock::new(init_session_manager()))
+		.mount("/", routes::basic::get_routes())
+		.mount("/api/auth", routes::auth::get_routes())
 		.register(catchers![error_400, error_404])
 		.launch();
 }

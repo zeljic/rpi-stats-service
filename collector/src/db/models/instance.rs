@@ -79,12 +79,10 @@ impl<'a, 'r> FromRequest<'a, 'r> for Instance {
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Instance, ()> {
 		match request.headers().get_one("X-Instance-UUID") {
 			Some(uuid) => {
-				let pool_wrapper = PoolWrapper::from_request(request);
+				let pool_wrapper =
+					PoolWrapper::from_request(request).expect("Unable to get connection pool");
 
-				match Instance::get_by_uuid(
-					&*(pool_wrapper.expect("Unable to get connection pool")),
-					uuid,
-				) {
+				match Instance::get_by_uuid(&pool_wrapper, uuid) {
 					Some(instance) => Outcome::Success(instance),
 					None => Outcome::Failure((Status::BadRequest, ())),
 				}
