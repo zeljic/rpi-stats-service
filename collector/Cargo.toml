@@ -7,13 +7,13 @@ edition = "2018"
 [dependencies]
 dotenv = "0.13.0"
 
-serde = "1.0.79"
-serde_json = "1.0.32"
-serde_derive = "1.0.79"
+serde = "1.0.80"
+serde_json = "1.0.33"
+serde_derive = "1.0.80"
 
-rocket = "0.4.0-rc.1"
-rocket_codegen = "0.4.0-rc.1"
-rocket_contrib = { version = "0.4.0-rc.1", default-features = false, features = ["json"] }
+rocket = "0.4.0"
+rocket_codegen = "0.4.0"
+rocket_contrib = { version = "0.4.0", default-features = false, features = ["json"] }
 
 r2d2 = "0.8.3"
 r2d2_sqlite = "0.7.0"
@@ -21,4 +21,4 @@ rusqlite = "0.15.0"
 
 rust-crypto = "0.2.36"
 
-rand = "0.6.0"
+rand = "0.6.1"
