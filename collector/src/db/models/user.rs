@@ -26,7 +26,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
 impl User {
 	pub fn login(conn: &Connection, email: &str, password: &str) -> Option<Token> {
 		let mut stmt = conn
-			.prepare("select id from user where email = ? and password = ?")
+			.prepare("select id from user where email = ? and password = ? and enabled = true")
 			.expect("Unable to create statement");
 
 		let mut sha256 = Sha256::new();
