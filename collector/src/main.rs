@@ -1,5 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro, plugin)]
-
+#![allow(dead_code)]
 extern crate dotenv;
 extern crate r2d2;
 extern crate r2d2_sqlite;
