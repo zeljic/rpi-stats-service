@@ -92,9 +92,9 @@ pub fn login(
 		&login_request.password,
 	) {
 		None => json!({
-				"status": false,
-				"reason": "Invalid username and password"
-			}),
+			"status": false,
+			"reason": "Invalid username and password"
+		}),
 		Some(token) => {
 			let mut session_manager = session_manager
 				.write()

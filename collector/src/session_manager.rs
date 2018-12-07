@@ -1,9 +1,5 @@
 use crate::routes::auth::Token;
-use rocket::request;
-use rocket::request::FromRequest;
-use rocket::Request;
 use std::collections::HashMap;
-use std::sync::RwLock;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug)]
@@ -32,9 +28,7 @@ impl Session {
 			);
 		}
 
-		let session = Session { token, store };
-
-		session
+		Session { token, store }
 	}
 }
 
