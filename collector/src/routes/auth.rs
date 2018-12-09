@@ -111,14 +111,21 @@ pub fn login(
 }
 
 #[get("/logout")]
-pub fn logout(token: Token, session_manager: State<RwLock<SessionManager>>) -> &'static str {
+pub fn logout(token: Token, session_manager: State<RwLock<SessionManager>>) -> JsonValue {
 	if let Ok(mut session_manager) = session_manager.write() {
 		if let Some(index) = session_manager.get_session_index_token(&token) {
 			session_manager.sessions.remove(index);
+
+			return json!({
+				"status": true
+			});
 		}
 	}
 
-	""
+	json!({
+		"status": false,
+		"message": "Unknown error"
+	})
 }
 
 pub fn get_routes() -> Vec<rocket::Route> {
