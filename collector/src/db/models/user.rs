@@ -29,12 +29,10 @@ impl User {
 			.prepare("select id from user where email = ? and password = ? and enabled = true")
 			.expect("Unable to create statement");
 
-		let mut sha256 = Sha256::new();
-		sha256.input_str(password);
-		let result = sha256.result_str();
+		let hashed_password: String = generate_password(password);
 
 		let mut rows = stmt
-			.query(&[&email, &result.as_str()])
+			.query(&[&email, hashed_password.as_str()])
 			.expect("Unable to execute query");
 
 		if rows.next().is_some() {
@@ -43,4 +41,13 @@ impl User {
 			None
 		}
 	}
+}
+
+#[inline(always)]
+fn generate_password(input: &str) -> String {
+	let mut sha256 = Sha256::new();
+
+	sha256.input_str(input);
+
+	sha256.result_str()
 }
