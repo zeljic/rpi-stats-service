@@ -1,0 +1,17 @@
+{
+	"rules": {
+		"indent": [2, "tab"],
+		"quotes": ["warn", "single"],
+		"comma-dangle": ["error", "never"]
+	},
+	"root": true,
+	"env": {
+		"node": true
+	},
+	"extends": [
+		"plugin:vue/essential"
+	],
+	"parserOptions": {
+		"parser": "babel-eslint"
+	}
+}
