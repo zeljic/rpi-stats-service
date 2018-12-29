@@ -15,7 +15,7 @@ pub struct Session {
 
 impl Session {
 	pub fn new_str(token: String) -> Self {
-		Session::new_token(Token(token))
+		Session::new_token(Token::from_string(token))
 	}
 
 	pub fn new_token(token: Token) -> Self {

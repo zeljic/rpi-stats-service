@@ -14,7 +14,10 @@ use rocket_contrib::json::{Json, JsonValue};
 use std::sync::RwLock;
 
 #[derive(Debug)]
-pub struct Token(pub String);
+pub struct Token {
+	pub key: String,
+	state: bool,
+}
 
 impl Token {
 	pub fn new() -> Self {
@@ -23,7 +26,23 @@ impl Token {
 		let mut sha256 = Sha256::new();
 		sha256.input_str(&rand_string);
 
-		Token(sha256.result_str())
+		Token::from_string(sha256.result_str())
+	}
+
+	pub fn from_string(key: String) -> Self {
+		Token { key, state: false }
+	}
+
+	pub fn from_str(key: &str) -> Self {
+		Token::from_string(String::from(key))
+	}
+
+	pub fn empty() -> Self {
+		Token::from_str("")
+	}
+
+	pub fn is_logged(&self) -> bool {
+		self.state
 	}
 }
 
@@ -38,39 +57,37 @@ impl<'a, 'r> FromRequest<'a, 'r> for Token {
 
 					match session_manager_read {
 						Ok(read_guard) => {
-							let token = Token(String::from(token));
+							let mut token = Token::from_str(token);
 
-							match read_guard.get_session_token(&token) {
-								Some(ref _session) => Outcome::Success(token),
-								None => Outcome::Failure((Status::BadRequest, ())),
-							}
+							token.state = read_guard.get_session_token(&token).is_some();
+
+							Outcome::Success(token)
 						}
 						Err(_) => Outcome::Failure((Status::BadRequest, ())),
 					}
 				}
-				Outcome::Failure(_) => Outcome::Failure((Status::BadRequest, ())),
-				Outcome::Forward(_) => Outcome::Failure((Status::BadRequest, ())),
+				_ => Outcome::Failure((Status::BadRequest, ())),
 			},
-			None => Outcome::Failure((Status::BadRequest, ())),
+			None => Outcome::Success(Token::empty()),
 		}
 	}
 }
 
 impl PartialEq for Token {
 	fn eq(&self, other: &Token) -> bool {
-		self.0 == other.0
+		self.key == other.key
 	}
 }
 
 impl PartialEq<String> for Token {
 	fn eq(&self, other: &String) -> bool {
-		self.0 == *other
+		self.key == *other
 	}
 }
 
 impl PartialEq<&Token> for Token {
 	fn eq(&self, other: &&Token) -> bool {
-		self.0 == other.0
+		self.key == other.key
 	}
 }
 
@@ -92,22 +109,31 @@ pub fn login(
 		&login_request.password,
 	) {
 		None => json!({
-			"status": false,
+			"status": true,
 			"reason": "Invalid username and password"
 		}),
 		Some(token) => {
-			let mut session_manager = session_manager
-				.write()
-				.expect("Unable to get session manager");
-
-			session_manager.add_new_session_str(&token.0);
+			match session_manager.write() {
+				Ok(mut x) => {
+					x.add_new_session_str(&token.key);
+				}
+				_ => unimplemented!(),
+			};
 
 			json!({
 				"status": true,
-				"token": &token.0
+				"token": &token.key
 			})
 		}
 	}
+}
+
+#[get("/", format = "application/json")]
+pub fn logged(token: Token) -> JsonValue {
+	return json!({
+		"status": true,
+		"logged": token.is_logged()
+	});
 }
 
 #[get("/logout")]
@@ -129,5 +155,5 @@ pub fn logout(token: Token, session_manager: State<RwLock<SessionManager>>) -> J
 }
 
 pub fn get_routes() -> Vec<rocket::Route> {
-	routes![login, logout]
+	routes![login, logout, logged]
 }
