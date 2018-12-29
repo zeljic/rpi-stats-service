@@ -1,17 +1,47 @@
 {
 	"rules": {
-		"indent": [2, "tab"],
-		"quotes": ["warn", "single"],
-		"comma-dangle": ["error", "never"]
+		"indent": [
+			"error",
+			"tab"
+		],
+		"quotes": [
+			"warn",
+			"single"
+		],
+		"comma-dangle": [
+			"error",
+			"never"
+		],
+		"semi": "error"
 	},
+	"overrides": [
+		{
+			"files": [
+				"*.vue"
+			],
+			"rules": {
+				"indent": "off",
+				"vue/script-indent": [
+					"error",
+					"tab",
+					{
+						"baseIndent": 1
+					}
+				]
+			}
+		}
+	],
 	"root": true,
 	"env": {
-		"node": true
+		"browser": true
 	},
 	"extends": [
 		"plugin:vue/essential"
 	],
 	"parserOptions": {
 		"parser": "babel-eslint"
-	}
+	},
+	"plugins": [
+		"vue"
+	]
 }
