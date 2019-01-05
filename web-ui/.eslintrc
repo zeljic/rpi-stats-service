@@ -2,7 +2,10 @@
 	"rules": {
 		"indent": [
 			"error",
-			"tab"
+			"tab",
+			{
+				"SwitchCase": 1
+			}
 		],
 		"quotes": [
 			"warn",
@@ -25,7 +28,8 @@
 					"error",
 					"tab",
 					{
-						"baseIndent": 1
+						"baseIndent": 1,
+						"switchCase": 1
 					}
 				]
 			}
