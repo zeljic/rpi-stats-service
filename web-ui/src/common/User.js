@@ -47,7 +47,7 @@ class User
 			{
 				setValue(this.tokenKey, response.data.token);
 
-				this.$store.commit('userStatusChanged', true);
+				this.$store.commit('user.logged', true);
 			}
 		});
 	}
@@ -63,8 +63,16 @@ class User
 			{
 				window.sessionStorage.removeItem(this.tokenKey);
 
-				this.$store.commit('userStatusChanged', false);
+				this.$store.commit('user.logged', false);
 			}
+		});
+	}
+
+	async profile()
+	{
+		return await this.$http({
+			url: '/api/user',
+			method: 'get'
 		});
 	}
 }

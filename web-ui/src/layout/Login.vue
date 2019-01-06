@@ -4,13 +4,13 @@
 			<v-container fluid grid-list-md fill-height>
 
 				<v-layout align-center justify-center>
-					<v-flex xs12 sm12 md8 lg6 xl4>
+					<v-flex xs12 sm10 md8 lg6 xl4>
 						<v-form @submit.prevent="submit">
 
-							<v-card class="elevation-0" color="transparent">
-								<v-card-text color="transparent">
+							<v-card>
+								<v-card-title class="title">Linden IO</v-card-title>
+								<v-card-text>
 									<v-text-field
-										solo
 										label="E-Mail"
 										:disabled="disabled"
 										v-model="email"
@@ -18,7 +18,6 @@
 									></v-text-field>
 
 									<v-text-field
-										solo
 										label="Password"
 										:disabled="disabled"
 										v-model="password"

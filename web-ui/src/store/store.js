@@ -6,13 +6,18 @@ Vue.use(Vuex);
 export default new Vuex.Store({
 	state: {
 		user: {
-			logged: false
+			logged: false,
+			profile: null
 		}
 	},
 	mutations: {
-		userStatusChanged(state, v)
+		'user.logged'(state, v)
 		{
 			state.user.logged = v;
+		},
+		'user.profile'(state, v)
+		{
+			state.user.profile = v;
 		}
 	},
 	actions: {},
@@ -20,6 +25,10 @@ export default new Vuex.Store({
 		'user.logged'(state)
 		{
 			return state.user.logged;
+		},
+		'user.profile'(state)
+		{
+			return state.user.profile;
 		}
 	}
 });

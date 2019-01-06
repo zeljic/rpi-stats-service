@@ -2,57 +2,53 @@
 	<component :is="component"/>
 </template>
 <script>
-	const App = () => import(/* webpackChunkName: "layout-app" */ './App.vue');
-	const Login = () => import(/* webpackChunkName: "layout-login" */ './Login.vue');
-	const Blank = () => import(/* webpackChunkName: "layout-blank" */ './Blank.vue');
+	const App = () => import(/* webpackChunkName: "application" */ './App.vue');
+	const Login = () => import(/* webpackChunkName: "login" */ './Login.vue');
+	const Blank = () => import(/* webpackChunkName: "blank" */ './Blank.vue');
+
+	let unwatch = null;
 
 	export default {
+		name: 'layout',
 		components: {Blank, App, Login},
 		data()
 		{
 			return {
-				initialCheck: false
+				initialCheck: false,
+				userStatus: false
 			};
 		},
 		computed: {
-			showApp: {
-				get()
-				{
-					return this.initialCheck && this.$store.getters['user.logged'];
-				},
-				set(v)
-				{
-					this.$store.commit('userStatusChanged', v);
-				}
-			},
-			showLogin: {
-				get()
-				{
-					return this.initialCheck && !this.showApp;
-				},
-				set(v)
-				{
-					this.showApp = !v;
-				}
-			},
 			component()
 			{
-				if (this.showApp)
+				if (this.userStatus && this.initialCheck)
 					return 'app';
-				else if (this.showLogin)
+				else if (!this.userStatus && this.initialCheck)
 					return 'login';
 				else
 					return 'blank';
 			}
 		},
-		async mounted()
+		mounted()
 		{
-			return await this.$user.is().then(response =>
+			unwatch = this.$store.watch((state) =>
 			{
-				this.showApp = response.data.status && response.data.logged === true;
-
-				this.initialCheck = true;
+				return state.user.logged;
+			}, (v) =>
+			{
+				this.userStatus = v;
 			});
+
+			this.$user.is().then((response) =>
+			{
+				this.initialCheck = true;
+
+				this.$store.commit('user.logged', response.data.status && response.data.logged);
+			});
+		},
+		destroyed()
+		{
+			unwatch();
 		}
 	};
 </script>
