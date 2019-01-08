@@ -38,7 +38,7 @@ impl Token {
 	}
 
 	pub fn empty() -> Self {
-		Token::from_str("")
+		Token::from_string(String::new())
 	}
 
 	pub fn is_logged(&self) -> bool {
@@ -52,20 +52,16 @@ impl<'a, 'r> FromRequest<'a, 'r> for Token {
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
 		match request.headers().get_one("X-Token") {
 			Some(token) => match request.guard::<State<RwLock<SessionManager>>>() {
-				Outcome::Success(session_manager) => {
-					let session_manager_read = session_manager.read();
+				Outcome::Success(session_manager) => match session_manager.read() {
+					Ok(read_guard) => {
+						let mut token = Token::from_str(token);
 
-					match session_manager_read {
-						Ok(read_guard) => {
-							let mut token = Token::from_str(token);
+						token.state = read_guard.get_session_token(&token).is_some();
 
-							token.state = read_guard.get_session_token(&token).is_some();
-
-							Outcome::Success(token)
-						}
-						Err(_) => Outcome::Failure((Status::BadRequest, ())),
+						Outcome::Success(token)
 					}
-				}
+					Err(_) => Outcome::Failure((Status::BadRequest, ())),
+				},
 				_ => Outcome::Failure((Status::BadRequest, ())),
 			},
 			None => Outcome::Success(Token::empty()),
@@ -91,6 +87,12 @@ impl PartialEq<&Token> for Token {
 	}
 }
 
+impl PartialEq<&str> for Token {
+	fn eq(&self, other: &&str) -> bool {
+		self.key == *other
+	}
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoginRequest {
 	email: String,
@@ -105,26 +107,18 @@ pub fn login(
 ) -> JsonValue {
 	match User::login(
 		&connection_pool_wrapper,
+		session_manager.inner(),
 		&login_request.email,
 		&login_request.password,
 	) {
+		Some(token) => json!({
+			"status": true,
+			"token": &token.key
+		}),
 		None => json!({
 			"status": true,
 			"reason": "Invalid username and password"
 		}),
-		Some(token) => {
-			match session_manager.write() {
-				Ok(mut x) => {
-					x.add_new_session_str(&token.key);
-				}
-				_ => unimplemented!(),
-			};
-
-			json!({
-				"status": true,
-				"token": &token.key
-			})
-		}
 	}
 }
 

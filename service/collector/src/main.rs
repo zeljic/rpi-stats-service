@@ -16,10 +16,9 @@ extern crate rand;
 extern crate serde_json;
 
 use crate::db::pool::init_pool;
-use crate::session_manager::init_session_manager;
+use crate::session_manager::init_rwlock_session_manager;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
-use std::sync::RwLock;
 
 mod db;
 mod routes;
@@ -44,9 +43,10 @@ fn error_400() -> Json<JsonValue> {
 fn main() {
 	rocket::ignite()
 		.manage(init_pool())
-		.manage(RwLock::new(init_session_manager()))
+		.manage(init_rwlock_session_manager())
 		.mount("/", routes::basic::get_routes())
 		.mount("/api/auth", routes::auth::get_routes())
+		.mount("/api/user", routes::user::get_routes())
 		.register(catchers![error_400, error_404])
 		.launch();
 }

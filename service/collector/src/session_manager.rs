@@ -1,13 +1,14 @@
 use crate::routes::auth::Token;
 use std::collections::HashMap;
+use std::sync::RwLock;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug)]
 pub enum StoreItem {
 	LastAction(usize),
+	UserId(u32),
 }
 
-#[derive(Debug)]
 pub struct Session {
 	pub token: Token,
 	pub store: HashMap<String, StoreItem>,
@@ -19,16 +20,27 @@ impl Session {
 	}
 
 	pub fn new_token(token: Token) -> Self {
-		let mut store = HashMap::new();
+		let mut session = Session {
+			token,
+			store: HashMap::new(),
+		};
 
 		if let Ok(timestamp) = SystemTime::now().duration_since(UNIX_EPOCH) {
-			store.insert(
-				String::from("last_action"),
+			session.add_to_store_str(
+				"last_action",
 				StoreItem::LastAction(timestamp.as_secs() as usize),
 			);
 		}
 
-		Session { token, store }
+		session
+	}
+
+	pub fn add_to_store_str(&mut self, key: &str, value: StoreItem) {
+		self.add_to_store(String::from(key), value);
+	}
+
+	pub fn add_to_store(&mut self, key: String, value: StoreItem) {
+		self.store.insert(key, value);
 	}
 }
 
@@ -49,6 +61,12 @@ impl SessionManager {
 		sessions.iter().find(|session| session.token == token)
 	}
 
+	pub fn get_session_str_mut(&mut self, token: &str) -> Option<&mut Session> {
+		let sesions = &mut self.sessions;
+
+		sesions.iter_mut().find(|session| session.token == token)
+	}
+
 	pub fn get_session_token(&self, token: &Token) -> Option<&Session> {
 		let sessions = &self.sessions;
 
@@ -61,8 +79,10 @@ impl SessionManager {
 		sessions.iter().position(|session| session.token == token)
 	}
 
-	pub fn add_new_session_str(&mut self, token: &str) {
+	pub fn add_new_session_str(&mut self, token: &str) -> Option<&mut Session> {
 		self.sessions.push(Session::new_str(String::from(token)));
+
+		self.get_session_str_mut(token)
 	}
 
 	pub fn add_new_session_token(&mut self, token: Token) {
@@ -72,4 +92,8 @@ impl SessionManager {
 
 pub fn init_session_manager() -> SessionManager {
 	SessionManager::new()
+}
+
+pub fn init_rwlock_session_manager() -> RwLock<SessionManager> {
+	RwLock::new(SessionManager::new())
 }
