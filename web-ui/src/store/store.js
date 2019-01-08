@@ -7,7 +7,8 @@ export default new Vuex.Store({
 	state: {
 		user: {
 			logged: false,
-			profile: null
+			profile: null,
+			token: null
 		}
 	},
 	mutations: {
@@ -18,6 +19,12 @@ export default new Vuex.Store({
 		'user.profile'(state, v)
 		{
 			state.user.profile = v;
+		},
+		'user.token'(state, v)
+		{
+			state.user.token = v;
+
+			return window.sessionStorage.setItem('x-token', v);
 		}
 	},
 	actions: {},
@@ -29,6 +36,10 @@ export default new Vuex.Store({
 		'user.profile'(state)
 		{
 			return state.user.profile;
+		},
+		'user.token'(state)
+		{
+			return state.user.token || window.sessionStorage.getItem('x-token');
 		}
 	}
 });

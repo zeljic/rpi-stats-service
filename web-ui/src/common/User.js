@@ -1,13 +1,3 @@
-const setValue = (key, value) =>
-{
-	window.sessionStorage.setItem(key, value);
-};
-
-const getValue = (key) =>
-{
-	window.sessionStorage.getItem(key);
-};
-
 class User
 {
 	constructor(Vue, store)
@@ -45,7 +35,7 @@ class User
 		{
 			if (response.data.status === true && response.data.token)
 			{
-				setValue(this.tokenKey, response.data.token);
+				this.$store.commit('user.token', response.data.token);
 
 				this.$store.commit('user.logged', true);
 			}

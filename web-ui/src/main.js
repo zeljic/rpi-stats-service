@@ -8,7 +8,7 @@ import User from './common/User';
 
 Vue.config.productionTip = false;
 
-Vue.use(new Http());
+Vue.use(new Http(Vue, store));
 Vue.use(new User(Vue, store));
 
 new Vue({

@@ -12,7 +12,7 @@
 				</v-list-tile>
 				<v-list-tile @click.prevent="click">
 					<v-list-tile-action>
-						<v-icon>contact_mail</v-icon>
+						<v-icon>fa-xs fa-envelope</v-icon>
 					</v-list-tile-action>
 					<v-list-tile-content>
 						<v-list-tile-title>Contact</v-list-tile-title>
@@ -42,9 +42,14 @@
 				profile: null
 			};
 		},
+		mounted()
+		{
+			this.$user.profile();
+		},
 		methods: {
 			click()
 			{
+				this.user.profile();
 			}
 		}
 	};
