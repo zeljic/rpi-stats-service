@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import './plugins/vuetify';
-import Layout from './layout/Layout.vue';
 import router from './router/router';
 import store from './store/store';
+
 import Http from './plugins/http';
 import User from './common/User';
+
+import Layout from './layout/Layout.vue';
 
 Vue.config.productionTip = false;
 
