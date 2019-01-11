@@ -23,34 +23,35 @@
 		<v-toolbar app fixed dense class="elevation-0" color="transparent">
 			<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
 			<v-toolbar-title>Linden IO</v-toolbar-title>
+			<v-spacer></v-spacer>
+			<v-btn v-if="profile">{{profile.name}}</v-btn>
 		</v-toolbar>
 		<v-content>
-			<v-container fluid fill-height>
-				<router-view></router-view>
-			</v-container>
+			<router-view></router-view>
 		</v-content>
 	</v-app>
 </template>
 
 <script>
+	import {mapGetters} from 'vuex';
+
 	export default {
 		name: 'App',
 		data()
 		{
 			return {
-				drawer: true,
-				profile: null
+				drawer: true
 			};
 		},
-		mounted()
+		computed: {
+			...mapGetters({
+				profile: 'user.profile',
+				'user.profile': 'user.profile'
+			})
+		},
+		beforeCreate()
 		{
 			this.$user.profile();
-		},
-		methods: {
-			click()
-			{
-				this.user.profile();
-			}
 		}
 	};
 </script>

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Cookies from 'js-cookie';
 
 Vue.use(Vuex);
 
@@ -24,7 +25,7 @@ export default new Vuex.Store({
 		{
 			state.user.token = v;
 
-			return window.sessionStorage.setItem('x-token', v);
+			Cookies.set('x-token', v);
 		}
 	},
 	actions: {},
@@ -39,7 +40,7 @@ export default new Vuex.Store({
 		},
 		'user.token'(state)
 		{
-			return state.user.token || window.sessionStorage.getItem('x-token');
+			return state.user.token || Cookies.get('x-token');;
 		}
 	}
 });

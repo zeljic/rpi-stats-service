@@ -4,7 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import 'vuetify/src/stylus/app.styl';
 
 Vue.use(Vuetify, {
-	iconfont: 'fa',
+	iconfont: 'md',
 	icons: {
 		menu: 'fa-lg fa-bars'
 	}

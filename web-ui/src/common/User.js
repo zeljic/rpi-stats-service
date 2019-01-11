@@ -5,8 +5,6 @@ class User
 		this.$vue = new Vue();
 		this.$http = this.$vue.$http;
 		this.$store = store;
-
-		this.tokenKey = 'lindenio-token';
 	}
 
 	install(Vue)
@@ -49,11 +47,11 @@ class User
 			method: 'get'
 		}).then(response =>
 		{
-			if (response.data.status)
+			if (response.data.status === true)
 			{
-				window.sessionStorage.removeItem(this.tokenKey);
-
 				this.$store.commit('user.logged', false);
+				this.$store.commit('user.profile', null);
+				this.$store.commit('user.token', null);
 			}
 		});
 	}
@@ -63,6 +61,12 @@ class User
 		return await this.$http({
 			url: '/api/user',
 			method: 'get'
+		}).then(response =>
+		{
+			if (response.data.status === true && response.data.user)
+			{
+				this.$store.commit('user.profile', response.data.user);
+			}
 		});
 	}
 }

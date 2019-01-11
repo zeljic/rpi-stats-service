@@ -11,15 +11,15 @@ use rocket::{Outcome, Request, State};
 use rusqlite::{Connection, Error, Row, Statement};
 use std::sync::RwLock;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, FromForm)]
 pub struct User {
 	#[serde(skip_serializing)]
 	pub id: Option<u32>,
 	pub name: String,
 	pub email: String,
-	#[serde(skip_serializing)]
+	#[serde(skip_serializing, skip_deserializing)]
 	pub password: String,
-	#[serde(skip_serializing)]
+	#[serde(skip_serializing, skip_deserializing)]
 	pub enabled: bool,
 }
 
@@ -84,44 +84,44 @@ impl User {
 		password: &str,
 	) -> Option<Token> {
 		match conn
-			.prepare("select id from user where email = ? and password = ? and enabled = true")
-			{
-				Ok(mut stmt) => {
-					let hashed_password: String = generate_password(password);
+			.prepare("select id from user where email = ? and password = ? and enabled = true;")
+		{
+			Ok(mut stmt) => {
+				let hashed_password: String = generate_password(password);
 
-					match stmt.query(&[&email, hashed_password.as_str()]) {
-						Ok(mut rows) => match rows.next() {
-							Some(row) => match row {
-								Ok(row) => match row.get_checked::<&str, u32>("id") {
-									Ok(id) => match session_manager.write() {
-										Ok(mut write_guard) => {
-											let token = Token::new();
+				match stmt.query(&[&email, hashed_password.as_str()]) {
+					Ok(mut rows) => match rows.next() {
+						Some(row) => match row {
+							Ok(row) => match row.get_checked::<&str, u32>("id") {
+								Ok(id) => match session_manager.write() {
+									Ok(mut write_guard) => {
+										let token = Token::new();
 
-											match write_guard.add_new_session_str(&token.key) {
-												Some(session) => {
-													session.add_to_store_str(
-														"user_id",
-														StoreItem::UserId(id),
-													);
+										match write_guard.add_new_session_str(&token.key) {
+											Some(session) => {
+												session.add_to_store_str(
+													"user_id",
+													StoreItem::UserId(id),
+												);
 
-													Some(token)
-												}
-												None => None,
+												Some(token)
 											}
+											None => None,
 										}
-										Err(_) => None,
-									},
+									}
 									Err(_) => None,
 								},
 								Err(_) => None,
 							},
-							None => None,
+							Err(_) => None,
 						},
-						Err(_) => None,
-					}
+						None => None,
+					},
+					Err(_) => None,
 				}
-				Err(_) => None,
 			}
+			Err(_) => None,
+		}
 	}
 }
 
@@ -131,14 +131,14 @@ impl<'a, 'stmt> From<Row<'a, 'stmt>> for User {
 			id: row.get("id"),
 			name: row.get("name"),
 			email: row.get("email"),
-			password: String::from(""),
+			password: row.get("password"),
 			enabled: row.get("enabled"),
 		}
 	}
 }
 
 #[inline(always)]
-fn generate_password(input: &str) -> String {
+pub fn generate_password(input: &str) -> String {
 	let mut sha256 = Sha256::new();
 
 	sha256.input_str(input);

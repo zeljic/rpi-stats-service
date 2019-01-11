@@ -12,6 +12,9 @@ pub trait CRUD {
 
 	fn read(conn: &Connection, id: u32) -> Option<Self::Output>;
 	fn create(&self, conn: &Connection) -> Result<usize, Error>;
+	fn delete(&self, _conn: &Connection) -> Result<(), Error> {
+		unimplemented!()
+	}
 }
 
 pub trait Enable {
