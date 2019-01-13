@@ -1,11 +1,10 @@
 use crate::db::models::user::User;
 use crate::db::pool::PoolWrapper;
-use crate::session_manager::SessionManager;
+use crate::session::session_manager::SessionManager;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use rocket::http::Status;
 use rocket::request;
 use rocket::request::FromRequest;
 use rocket::request::Request;
@@ -13,7 +12,7 @@ use rocket::{Outcome, State};
 use rocket_contrib::json::{Json, JsonValue};
 use std::sync::RwLock;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
 	pub key: String,
 	state: bool,
@@ -60,11 +59,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for Token {
 
 						Outcome::Success(token)
 					}
-					Err(_) => Outcome::Failure((Status::BadRequest, ())),
+					Err(_) => Outcome::Forward(()),
 				},
-				_ => Outcome::Failure((Status::BadRequest, ())),
+				_ => Outcome::Forward(()),
 			},
-			None => Outcome::Success(Token::empty()),
+			None => Outcome::Forward(()),
 		}
 	}
 }

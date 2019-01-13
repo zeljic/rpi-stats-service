@@ -1,48 +1,6 @@
 use crate::routes::auth::Token;
-use std::collections::HashMap;
+use crate::session::session::Session;
 use std::sync::RwLock;
-use std::time::{SystemTime, UNIX_EPOCH};
-
-#[derive(Debug)]
-pub enum StoreItem {
-	LastAction(usize),
-	UserId(u32),
-}
-
-pub struct Session {
-	pub token: Token,
-	pub store: HashMap<String, StoreItem>,
-}
-
-impl Session {
-	pub fn new_str(token: String) -> Self {
-		Session::new_token(Token::from_string(token))
-	}
-
-	pub fn new_token(token: Token) -> Self {
-		let mut session = Session {
-			token,
-			store: HashMap::new(),
-		};
-
-		if let Ok(timestamp) = SystemTime::now().duration_since(UNIX_EPOCH) {
-			session.add_to_store_str(
-				"last_action",
-				StoreItem::LastAction(timestamp.as_secs() as usize),
-			);
-		}
-
-		session
-	}
-
-	pub fn add_to_store_str(&mut self, key: &str, value: StoreItem) {
-		self.add_to_store(String::from(key), value);
-	}
-
-	pub fn add_to_store(&mut self, key: String, value: StoreItem) {
-		self.store.insert(key, value);
-	}
-}
 
 pub struct SessionManager {
 	pub sessions: Vec<Session>,
@@ -71,6 +29,12 @@ impl SessionManager {
 		let sessions = &self.sessions;
 
 		sessions.iter().find(|session| token == &session.token)
+	}
+
+	pub fn get_session_token_mut(&mut self, token: &Token) -> Option<&mut Session> {
+		let sesions = &mut self.sessions;
+
+		sesions.iter_mut().find(|session| session.token == token)
 	}
 
 	pub fn get_session_index_token(&self, token: &Token) -> Option<usize> {

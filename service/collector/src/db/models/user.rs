@@ -1,13 +1,14 @@
 use crate::db::models::CRUD;
 use crate::db::pool::PoolWrapper;
 use crate::routes::auth::Token;
-use crate::session_manager::SessionManager;
-use crate::session_manager::StoreItem;
+use crate::session::session::Session;
+use crate::session::session::SessionItem;
+use crate::session::session_manager::SessionManager;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use rocket::request;
 use rocket::request::FromRequest;
-use rocket::{Outcome, Request, State};
+use rocket::{Outcome, Request};
 use rusqlite::{Connection, Error, Row, Statement};
 use std::sync::RwLock;
 
@@ -33,8 +34,8 @@ impl CRUD for User {
 
 		let mut rows = statement.query(&[&id]).expect("Unable to execute query");
 
-		if let Some(result_row) = rows.next() {
-			Some(User::from(result_row.expect("Unable to get row")))
+		if let Some(Ok(row)) = rows.next() {
+			Some(User::from(row))
 		} else {
 			None
 		}
@@ -49,27 +50,13 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
 	type Error = ();
 
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
-		let token = Token::from_request(request).unwrap();
-		let session_manager = request.guard::<State<RwLock<SessionManager>>>();
-		let pool_wrapper = PoolWrapper::from_request(request);
+		let connection: PoolWrapper = PoolWrapper::from_request(request)?;
+		let session = Session::from_request(request)?;
 
-		match session_manager {
-			Outcome::Success(session_manager) => match session_manager.read() {
-				Ok(session_manager) => match session_manager.get_session_token(&token) {
-					Some(session) => match session.store.get("user_id") {
-						Some(StoreItem::UserId(id)) => {
-							let connection: PoolWrapper = pool_wrapper.unwrap();
-
-							match User::read(&connection, *id as u32) {
-								Some(user) => Outcome::Success(user),
-								None => Outcome::Forward(()),
-							}
-						}
-						_ => Outcome::Forward(()),
-					},
-					_ => Outcome::Forward(()),
-				},
-				_ => Outcome::Forward(()),
+		match session.store.get("user_id") {
+			Some(SessionItem::UserId(user_id)) => match User::read(&connection, *user_id) {
+				Some(user) => Outcome::Success(user),
+				None => Outcome::Forward(()),
 			},
 			_ => Outcome::Forward(()),
 		}
@@ -94,15 +81,17 @@ impl User {
 						Some(row) => match row {
 							Ok(row) => match row.get_checked::<&str, u32>("id") {
 								Ok(id) => match session_manager.write() {
-									Ok(mut write_guard) => {
+									Ok(mut session_write_guard) => {
 										let token = Token::new();
 
-										match write_guard.add_new_session_str(&token.key) {
+										match session_write_guard.add_new_session_str(&token.key) {
 											Some(session) => {
 												session.add_to_store_str(
 													"user_id",
-													StoreItem::UserId(id),
+													SessionItem::UserId(id),
 												);
+
+												session.ping();
 
 												Some(token)
 											}
@@ -132,7 +121,7 @@ impl<'a, 'stmt> From<Row<'a, 'stmt>> for User {
 			name: row.get("name"),
 			email: row.get("email"),
 			password: row.get("password"),
-			enabled: row.get("enabled"),
+			enabled: row.get_checked::<&str, bool>("enabled").unwrap(),
 		}
 	}
 }

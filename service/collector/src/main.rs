@@ -16,28 +16,27 @@ extern crate rand;
 extern crate serde_json;
 
 use crate::db::pool::init_pool;
-use crate::session_manager::init_rwlock_session_manager;
-use rocket_contrib::json::Json;
+use crate::session::session_manager::init_rwlock_session_manager;
 use rocket_contrib::json::JsonValue;
 
 mod db;
 mod routes;
-mod session_manager;
+mod session;
 
 #[catch(404)]
-fn error_404() -> Json<JsonValue> {
-	Json(json!({
+fn error_404() -> JsonValue {
+	json!({
 		"status": false,
 		"reason": "Handler Not Found: Unable to handle this request"
-	}))
+	})
 }
 
 #[catch(400)]
-fn error_400() -> Json<JsonValue> {
-	Json(json!({
+fn error_400() -> JsonValue {
+	json!({
 		"status": false,
 		"reason": "Bad Request: Unable to handle this request"
-	}))
+	})
 }
 
 fn main() {
