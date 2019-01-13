@@ -63,7 +63,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Token {
 				},
 				_ => Outcome::Forward(()),
 			},
-			None => Outcome::Forward(()),
+			None => Outcome::Success(Token::empty()),
 		}
 	}
 }
