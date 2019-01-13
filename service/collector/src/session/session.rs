@@ -1,5 +1,5 @@
-use crate::routes::auth::Token;
 use crate::session::session_manager::SessionManager;
+use crate::session::token::Token;
 use rocket::request;
 use rocket::request::FromRequest;
 use rocket::Outcome;

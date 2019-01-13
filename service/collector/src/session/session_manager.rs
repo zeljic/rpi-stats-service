@@ -1,5 +1,5 @@
-use crate::routes::auth::Token;
 use crate::session::session::Session;
+use crate::session::token::Token;
 use std::sync::RwLock;
 
 pub struct SessionManager {

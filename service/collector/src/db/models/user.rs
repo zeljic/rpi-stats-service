@@ -1,9 +1,9 @@
 use crate::db::models::CRUD;
 use crate::db::pool::PoolWrapper;
-use crate::routes::auth::Token;
 use crate::session::session::Session;
 use crate::session::session::SessionItem;
 use crate::session::session_manager::SessionManager;
+use crate::session::token::Token;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use rocket::request;
