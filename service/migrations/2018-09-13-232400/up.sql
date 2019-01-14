@@ -31,6 +31,7 @@ create table `mesh` (
 );
 
 create table `mesh_instance` (
+    `id` integer not null primary key autoincrement,
     `mesh_id` integer not null,
     `instance_id` integer not null,
     `enabled` boolean not null default 0,
