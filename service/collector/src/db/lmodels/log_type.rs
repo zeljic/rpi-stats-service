@@ -1,6 +1,3 @@
-use rusqlite::Connection;
-use rusqlite::Row;
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogType {
 	pub id: Option<u32>,
@@ -8,7 +5,7 @@ pub struct LogType {
 	pub enabled: bool,
 }
 
-impl<'a, 'stmt> From<Row<'a, 'stmt>> for LogType {
+/*impl<'a, 'stmt> From<Row<'a, 'stmt>> for LogType {
 	fn from(row: Row<'a, 'stmt>) -> Self {
 		LogType {
 			id: row.get("id"),
@@ -16,9 +13,9 @@ impl<'a, 'stmt> From<Row<'a, 'stmt>> for LogType {
 			enabled: row.get("enabled"),
 		}
 	}
-}
+}*/
 
-impl LogType {
+/*impl LogType {
 	pub fn get_by_name(conn: &Connection, name: &str) -> Option<Self> {
 		let mut stmt = conn
 			.prepare("select * from log_type where name = ?")
@@ -32,4 +29,4 @@ impl LogType {
 			None
 		}
 	}
-}
+}*/

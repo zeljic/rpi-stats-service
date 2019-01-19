@@ -1,5 +1,5 @@
-use crate::db::models::user::User;
-use crate::db::pool::PoolWrapper;
+use crate::db::lmodels::logical_user::LogicalUser;
+use crate::db::DatabaseConnection;
 use crate::session::session_manager::SessionManager;
 use crate::session::token::Token;
 use rocket::State;
@@ -14,12 +14,12 @@ pub struct LoginRequest {
 
 #[post("/", format = "application/json", data = "<login_request>")]
 pub fn login(
-	connection_pool_wrapper: PoolWrapper,
+	connection: DatabaseConnection,
 	login_request: Json<LoginRequest>,
 	session_manager: State<RwLock<SessionManager>>,
 ) -> JsonValue {
-	match User::login(
-		&connection_pool_wrapper,
+	match LogicalUser::login(
+		&connection,
 		session_manager.inner(),
 		&login_request.email,
 		&login_request.password,
