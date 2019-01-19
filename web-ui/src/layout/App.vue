@@ -2,7 +2,7 @@
 	<v-app>
 		<v-navigation-drawer app fixed v-model="drawer">
 			<v-list dense>
-				<v-list-tile v-for="item in sidebar" :to="item.url">
+				<v-list-tile v-for="item in sidebar" :key="item.url" :to="item.url">
 					<v-list-tile-action>
 						<v-icon>{{item.icon}}</v-icon>
 					</v-list-tile-action>
@@ -19,12 +19,12 @@
 			<v-spacer></v-spacer>
 
 			<v-toolbar-items>
-				<v-btn v-for="item in sidebar" flat :to="item.url">
+				<v-btn v-for="item in sidebar" :key="item.url" flat :to="item.url">
 					<v-icon left small>{{item.icon}}</v-icon>
 					{{item.title}}
 				</v-btn>
 
-				<v-divider v-if=""></v-divider>
+				<v-divider v-if="profile"></v-divider>
 
 				<v-menu v-model="profileMenu" offset-y v-if="profile">
 					<v-btn slot="activator" flat>
@@ -88,7 +88,7 @@
 		methods: {
 			logout()
 			{
-				this.$user.logout().then(response =>
+				this.$user.logout().then(() =>
 				{
 					this.$router.replace('/');
 				});
