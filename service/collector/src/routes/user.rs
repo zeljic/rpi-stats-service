@@ -1,13 +1,17 @@
-use crate::db::models::user::generate_password;
-use crate::db::models::user::User;
-use crate::db::models::CRUD;
-use crate::db::pool::PoolWrapper;
+use crate::db::lmodels::logical_user::generate_password;
+use crate::db::lmodels::logical_user::LogicalUser;
+use crate::db::lmodels::CRUD;
+use crate::db::DatabaseConnection;
 use rocket::Route;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 
+use crate::db::dmodels::schema::user::dsl as user_dsl;
+use crate::db::dmodels::User;
+use diesel::prelude::*;
+
 #[get("/", format = "application/json")]
-pub fn profile(user: User) -> JsonValue {
+pub fn profile(user: LogicalUser) -> JsonValue {
 	json!({
 		"status": true,
 		"user": user
@@ -15,31 +19,37 @@ pub fn profile(user: User) -> JsonValue {
 }
 
 #[post("/", format = "application/json", data = "<json_user>")]
-pub fn profile_update(conn: PoolWrapper, user: User, json_user: Json<User>) -> JsonValue {
-	match conn.prepare("update user set name = ?, email = ? where id = ?;") {
-		Ok(mut stmt) => {
-			match stmt.execute(&[
-				&json_user.name,
-				&json_user.email,
-				&user.id.unwrap().to_string(),
-			]) {
-				Ok(_) => {
-					let user = User::read(&conn, user.id.unwrap());
+pub fn profile_update(
+	conn: DatabaseConnection,
+	user: LogicalUser,
+	json_user: Json<LogicalUser>,
+) -> JsonValue {
+	if let Some(id) = user.id {
+		if let Ok(user) = user_dsl::user
+			.filter(user_dsl::id.eq(id))
+			.first::<User>(&conn.0)
+		{
+			let result = diesel::update(&user)
+				.set((
+					user_dsl::email.eq(&json_user.email),
+					user_dsl::name.eq(&json_user.name),
+				))
+				.execute(&conn.0);
 
-					json!({
-						"status": true,
-						"user": user
-					})
-				}
-				Err(_) => json!({
-					"status": false
-				}),
+			if result.is_ok() {
+				let user: LogicalUser = user.into();
+
+				return json!({
+					"status": true,
+					"user": user
+				});
 			}
 		}
-		Err(_) => json!({
-			"status": false
-		}),
 	}
+
+	json!({
+		"status": false
+	})
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -52,8 +62,8 @@ pub struct NewPassword {
 
 #[post("/change-password", format = "json", data = "<data>")]
 pub fn profile_change_password(
-	conn: PoolWrapper,
-	user: User,
+	conn: DatabaseConnection,
+	logical_user: LogicalUser,
 	data: Json<NewPassword>,
 ) -> JsonValue {
 	if data.new != data.new_again {
@@ -63,45 +73,31 @@ pub fn profile_change_password(
 		});
 	}
 
-	match user.id {
-		Some(id) => match User::read(&conn, id) {
-			Some(user) => {
-				if user.password == generate_password(data.old.as_str()) {
-					match conn.prepare("update user set password = ? where id = ?;") {
-						Ok(mut stmt) => match stmt.execute(&[
-							generate_password(data.new.as_str()).as_str(),
-							&id.to_string(),
-						]) {
-							Ok(_) => json!({
-								"status": true
-							}),
-							Err(_) => json!({
-								"status": true,
-								"reason": "Unable to update user's password"
-							}),
-						},
-						Err(_) => json!({
-							"status": true,
-							"reason": "Unable to prepare statment"
-						}),
-					}
-				} else {
-					json!({
+	if let Some(id) = logical_user.id {
+		if logical_user.password == generate_password(data.old.as_str()) {
+			if let Ok(user) = user_dsl::user
+				.filter(user_dsl::id.eq(id))
+				.first::<User>(&conn.0)
+			{
+				let result = diesel::update(&user)
+					.set(user_dsl::password.eq(generate_password(data.new.as_str())))
+					.execute(&conn.0);
+
+				if result.is_ok() {
+					let user: LogicalUser = user.into();
+
+					return json!({
 						"status": true,
-						"reason": "Inavalid password"
-					})
+						"user": user
+					});
 				}
 			}
-			None => json!({
-				"status": true,
-				"reason": "Unable to get user by id"
-			}),
-		},
-		None => json!({
-			"status": true,
-			"reason": "Unable to get user by id"
-		}),
+		}
 	}
+
+	json!({
+		"status": false
+	})
 }
 
 pub fn get_routes() -> Vec<Route> {

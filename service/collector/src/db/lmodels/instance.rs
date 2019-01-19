@@ -1,14 +1,9 @@
-use crate::db::models::CRUD;
-use crate::db::pool::PoolWrapper;
+use crate::db::lmodels::CRUD;
 use rocket::http::Status;
 use rocket::request;
 use rocket::request::FromRequest;
 use rocket::Outcome;
 use rocket::Request;
-use rusqlite::Connection;
-use rusqlite::Error;
-use rusqlite::Row;
-use rusqlite::Statement;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Instance {
@@ -22,7 +17,7 @@ pub struct Instance {
 impl CRUD for Instance {
 	type Output = Self;
 
-	fn read(conn: &Connection, id: u32) -> Option<Self::Output> {
+	/*fn read(conn: &Connection, id: u32) -> Option<Self::Output> {
 		let mut statement: Statement = conn
 			.prepare("select * from `instance` where `id` = ?;")
 			.expect("Unable to prepare statement");
@@ -42,11 +37,11 @@ impl CRUD for Instance {
 			.expect("Unable to prepare statement");
 
 		statement.execute(&[&self.uuid, &self.name, &self.description])
-	}
+	}*/
 }
 
 impl Instance {
-	fn get_by_uuid(conn: &Connection, uuid: &str) -> Option<Self> {
+	/*fn get_by_uuid(conn: &Connection, uuid: &str) -> Option<Self> {
 		let mut statement: Statement = conn
 			.prepare("select * from `instance` where uuid = ?;")
 			.expect("Unable to prepare statement");
@@ -58,10 +53,10 @@ impl Instance {
 		} else {
 			None
 		}
-	}
+	}*/
 }
 
-impl<'a, 'stmt> From<Row<'a, 'stmt>> for Instance {
+/*impl<'a, 'stmt> From<Row<'a, 'stmt>> for Instance {
 	fn from(row: Row) -> Self {
 		Instance {
 			id: row.get("id"),
@@ -71,7 +66,7 @@ impl<'a, 'stmt> From<Row<'a, 'stmt>> for Instance {
 			enabled: row.get("enabled"),
 		}
 	}
-}
+}*/
 
 impl<'a, 'r> FromRequest<'a, 'r> for Instance {
 	type Error = ();
@@ -79,13 +74,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for Instance {
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
 		match request.headers().get_one("X-Instance-UUID") {
 			Some(uuid) => {
-				let pool_wrapper =
+				unimplemented!()
+				/*let pool_wrapper =
 					PoolWrapper::from_request(request).expect("Unable to get connection pool");
 
 				match Instance::get_by_uuid(&pool_wrapper, uuid) {
 					Some(instance) => Outcome::Success(instance),
 					None => Outcome::Failure((Status::BadRequest, ())),
-				}
+				}*/
 			}
 			None => Outcome::Failure((Status::BadRequest, ())),
 		}

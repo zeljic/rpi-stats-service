@@ -1,13 +1,10 @@
-#![feature(proc_macro_hygiene, decl_macro, plugin)]
+#![feature(proc_macro_hygiene, decl_macro)]
 #![allow(dead_code)]
 extern crate dotenv;
-extern crate r2d2;
-extern crate r2d2_sqlite;
 #[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
-extern crate rusqlite;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -15,9 +12,14 @@ extern crate crypto;
 extern crate rand;
 extern crate serde_json;
 
-use crate::db::pool::init_pool;
+#[macro_use]
+extern crate diesel;
+
 use crate::session::session_manager::init_rwlock_session_manager;
 use rocket_contrib::json::JsonValue;
+
+use crate::db::DatabaseConnection;
+use diesel::prelude::*;
 
 mod db;
 mod routes;
@@ -41,7 +43,7 @@ fn error_400() -> JsonValue {
 
 fn main() {
 	rocket::ignite()
-		.manage(init_pool())
+		.attach(DatabaseConnection::fairing())
 		.manage(init_rwlock_session_manager())
 		.mount("/", routes::basic::get_routes())
 		.mount("/api/auth", routes::auth::get_routes())

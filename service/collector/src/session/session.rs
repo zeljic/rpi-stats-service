@@ -13,7 +13,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Debug, Clone)]
 pub enum SessionItem {
 	LastAction(Duration),
-	UserId(u32),
+	UserId(i32),
 }
 
 #[derive(Clone)]

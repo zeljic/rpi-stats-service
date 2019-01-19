@@ -1,9 +1,6 @@
-use crate::db::models::instance::Instance;
-use crate::db::models::log_type::LogType;
-use crate::db::models::CRUD;
-use rusqlite::types::ToSql;
-use rusqlite::Connection;
-use rusqlite::Error;
+use crate::db::lmodels::instance::Instance;
+use crate::db::lmodels::log_type::LogType;
+use crate::db::lmodels::CRUD;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Log {
@@ -18,11 +15,8 @@ pub struct Log {
 impl CRUD for Log {
 	type Output = Log;
 
-	fn read(_conn: &Connection, _id: u32) -> Option<Self::Output> {
-		unimplemented!()
-	}
-
-	fn create(&self, conn: &Connection) -> Result<usize, Error> {
+	// TODO: re-implement it
+	/*fn create(&self, conn: &Connection) -> Result<usize, Error> {
 		let mut statement = conn.prepare("insert into `log` (`instance_id`, `log_type_id`, `date_time`, `value`, `enabled`) values (?1, ?2, ?3, ?4, ?5);")?;
 
 		let values: &[&ToSql] = &[
@@ -34,10 +28,10 @@ impl CRUD for Log {
 		];
 
 		statement.execute(values)
-	}
+	}*/
 }
 
-impl Log {
+/*impl Log {
 	pub fn new(
 		conn: &Connection,
 		instance: &Instance,
@@ -76,7 +70,7 @@ impl Log {
 
 		Ok(log)
 	}
-}
+}*/
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LogCreateRequest {
