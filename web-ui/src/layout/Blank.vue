@@ -3,7 +3,7 @@
 </template>
 <script>
 	export default {
-		name: 'Blank',
+		name: 'blank',
 		data()
 		{
 			return {};
