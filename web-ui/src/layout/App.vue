@@ -24,14 +24,12 @@
 					{{item.title}}
 				</v-btn>
 
-				<v-divider v-if="profile"></v-divider>
-
-				<v-menu v-model="profileMenu" offset-y v-if="profile" lazy>
-					<v-btn slot="activator" icon>
+				<v-menu v-model="profileMenu" offset-y lazy :disabled="!profile">
+					<v-btn slot="activator" icon :disabled="!profile">
 						<v-icon small flat>fa fa-user</v-icon>
 					</v-btn>
 
-					<v-list dense>
+					<v-list dense v-if="profile">
 						<v-card flat>
 							<v-card-text>
 								Welcome back,<br/> {{profile.name}}
