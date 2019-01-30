@@ -39,6 +39,14 @@ create table `mesh_instance` (
     foreign key(`instance_id`) references instance(`id`)
 );
 
+create table `user_mesh` (
+    `id` integer not null primary key autoincrement,
+    `user_id` integer not null,
+    `mesh_id` integer not null,
+    foreign key(`user_id`) references user(`id`),
+    foreign key(`mesh_id`) references mesh(`id`)
+);
+
 create table `user` (
     `id` integer not null primary key autoincrement,
     `name` varchar(64),

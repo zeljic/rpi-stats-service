@@ -1,5 +1,5 @@
 pub mod dmodels;
-pub mod lmodels;
+pub mod models;
 
 #[database("db")]
 pub struct DatabaseConnection(pub diesel::SqliteConnection);

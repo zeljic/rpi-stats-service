@@ -26,13 +26,20 @@
 
 				<v-divider v-if="profile"></v-divider>
 
-				<v-menu v-model="profileMenu" offset-y v-if="profile">
-					<v-btn slot="activator" flat>
-						<v-icon small flat left>fa fa-user</v-icon>
-						{{profile.name}}
+				<v-menu v-model="profileMenu" offset-y v-if="profile" lazy>
+					<v-btn slot="activator" icon>
+						<v-icon small flat>fa fa-user</v-icon>
 					</v-btn>
 
 					<v-list dense>
+						<v-card flat>
+							<v-card-text>
+								Welcome back,<br/> {{profile.name}}
+							</v-card-text>
+						</v-card>
+
+						<v-divider></v-divider>
+
 						<v-list-tile :to="'/profile'">
 							<v-list-tile-title>Profile</v-list-tile-title>
 						</v-list-tile>
@@ -71,14 +78,6 @@
 			sidebar()
 			{
 				return sidebar;
-			},
-			route()
-			{
-				return this.$route;
-			},
-			router()
-			{
-				return this.$router;
 			}
 		},
 		async beforeCreate()
