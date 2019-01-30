@@ -1,6 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![allow(dead_code)]
-extern crate dotenv;
 #[macro_use]
 extern crate rocket;
 #[macro_use]
@@ -19,7 +18,6 @@ use crate::session::session_manager::init_rwlock_session_manager;
 use rocket_contrib::json::JsonValue;
 
 use crate::db::DatabaseConnection;
-use diesel::prelude::*;
 
 mod db;
 mod routes;

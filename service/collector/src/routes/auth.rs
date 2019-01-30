@@ -1,4 +1,4 @@
-use crate::db::lmodels::logical_user::LogicalUser;
+use crate::db::models::user::User;
 use crate::db::DatabaseConnection;
 use crate::session::session_manager::SessionManager;
 use crate::session::token::Token;
@@ -6,10 +6,10 @@ use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 use std::sync::RwLock;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LoginRequest {
-	email: String,
-	password: String,
+	email: Option<String>,
+	password: Option<String>,
 }
 
 #[post("/", format = "application/json", data = "<login_request>")]
@@ -18,12 +18,12 @@ pub fn login(
 	login_request: Json<LoginRequest>,
 	session_manager: State<RwLock<SessionManager>>,
 ) -> JsonValue {
-	match LogicalUser::login(
-		&connection,
-		session_manager.inner(),
-		&login_request.email,
-		&login_request.password,
-	) {
+	let login_request = login_request.clone();
+
+	let email = login_request.email.unwrap_or_default();
+	let password = login_request.password.unwrap_or_default();
+
+	match User::login(&connection, session_manager.inner(), &email, &password) {
 		Some(token) => json!({
 			"status": true,
 			"token": &token.key

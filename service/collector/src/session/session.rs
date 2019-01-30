@@ -16,7 +16,7 @@ pub enum SessionItem {
 	UserId(i32),
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Session {
 	pub token: Token,
 	pub store: HashMap<String, SessionItem>,

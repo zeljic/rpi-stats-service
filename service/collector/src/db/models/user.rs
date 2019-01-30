@@ -1,5 +1,3 @@
-use crate::db::dmodels::User;
-use crate::db::lmodels::CRUD;
 use crate::db::DatabaseConnection;
 use crate::session::session::Session;
 use crate::session::session::SessionItem;
@@ -12,37 +10,62 @@ use rocket::request::FromRequest;
 use rocket::{Outcome, Request};
 use std::sync::RwLock;
 
+use crate::db::dmodels::schema::user;
 use crate::db::dmodels::schema::user::dsl as user_dsl;
+use crate::db::models::AsJsonError;
+use crate::db::models::ModelAs;
 use diesel::prelude::*;
+use std::error;
+use std::rc::Rc;
 
-#[derive(Serialize, Deserialize, Debug, FromForm)]
-pub struct LogicalUser {
-	#[serde(skip_serializing)]
-	pub id: Option<i32>,
-	pub name: String,
-	pub email: String,
-	#[serde(skip_serializing, skip_deserializing)]
-	pub password: String,
-	#[serde(skip_serializing, skip_deserializing)]
+type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+
+#[derive(Debug, Queryable, Identifiable, Clone)]
+#[table_name = "user"]
+pub struct UserModel {
+	pub id: i32,
+	pub name: Option<String>,
+	pub email: Option<String>,
+	pub password: Option<String>,
 	pub enabled: bool,
 }
 
-impl CRUD for LogicalUser {
-	type Output = Self;
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserJson {
+	pub id: Option<i32>,
+	pub name: String,
+	pub email: String,
+}
 
-	fn read(conn: &DatabaseConnection, id: i32) -> Option<<Self as CRUD>::Output> {
-		match user_dsl::user
-			.filter(user_dsl::enabled.eq(true))
+pub struct User {
+	model: Rc<UserModel>,
+}
+
+impl User {
+	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
+		if let Ok(model) = user_dsl::user
 			.filter(user_dsl::id.eq(id))
-			.first::<User>(&conn.0)
+			.first::<UserModel>(&conn.0)
 		{
-			Ok(user) => Some(LogicalUser::from(user)),
-			Err(_) => None,
+			return Ok(User {
+				model: Rc::new(model),
+			});
 		}
+
+		Err(Box::new(AsJsonError::new("Unable to read user by id")))
 	}
 }
 
-impl LogicalUser {
+impl<'de> ModelAs<'de> for User {
+	type OutputJson = UserJson;
+	type OutputModel = UserModel;
+
+	fn as_model(&self) -> Rc<Self::OutputModel> {
+		Rc::clone(&self.model)
+	}
+}
+
+impl User {
 	pub fn login(
 		conn: &DatabaseConnection,
 		session_manager: &RwLock<SessionManager>,
@@ -55,7 +78,7 @@ impl LogicalUser {
 			.filter(user_dsl::email.eq(email))
 			.filter(user_dsl::password.eq(hashed_password))
 			.filter(user_dsl::enabled.eq(true))
-			.first::<User>(&conn.0)
+			.first::<UserModel>(&conn.0)
 		{
 			Ok(user) => match session_manager.write() {
 				Ok(mut session_write_guard) => {
@@ -79,19 +102,7 @@ impl LogicalUser {
 	}
 }
 
-impl From<User> for LogicalUser {
-	fn from(user: User) -> Self {
-		LogicalUser {
-			id: Some(user.id),
-			name: user.name.unwrap(),
-			email: user.email.unwrap(),
-			password: user.password.unwrap(),
-			enabled: user.enabled,
-		}
-	}
-}
-
-impl<'a, 'r> FromRequest<'a, 'r> for LogicalUser {
+impl<'a, 'r> FromRequest<'a, 'r> for User {
 	type Error = ();
 
 	fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
@@ -99,11 +110,26 @@ impl<'a, 'r> FromRequest<'a, 'r> for LogicalUser {
 		let session = Session::from_request(request)?;
 
 		match session.store.get("user_id") {
-			Some(SessionItem::UserId(user_id)) => match LogicalUser::read(&connection, *user_id) {
-				Some(user) => Outcome::Success(user),
-				None => Outcome::Forward(()),
-			},
+			Some(SessionItem::UserId(user_id)) => {
+				if let Ok(user) = User::new(&connection, *user_id) {
+					Outcome::Success(user)
+				} else {
+					Outcome::Forward(())
+				}
+			}
 			_ => Outcome::Forward(()),
+		}
+	}
+}
+
+impl From<Rc<UserModel>> for UserJson {
+	fn from(user_model: Rc<UserModel>) -> Self {
+		let model: UserModel = user_model.as_ref().clone();
+
+		UserJson {
+			id: Option::from(user_model.id),
+			name: model.name.unwrap_or_else(|| String::from("")),
+			email: model.email.unwrap_or_else(|| String::from("")),
 		}
 	}
 }

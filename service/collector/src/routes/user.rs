@@ -1,48 +1,64 @@
-use crate::db::lmodels::logical_user::generate_password;
-use crate::db::lmodels::logical_user::LogicalUser;
-use crate::db::lmodels::CRUD;
+use crate::db::models::user::generate_password;
+use crate::db::models::user::UserJson;
 use crate::db::DatabaseConnection;
 use rocket::Route;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 
 use crate::db::dmodels::schema::user::dsl as user_dsl;
-use crate::db::dmodels::User;
+use crate::db::models::user::User;
+use crate::db::models::user::UserModel;
+use crate::db::models::ModelAs;
 use diesel::prelude::*;
 
 #[get("/", format = "application/json")]
-pub fn profile(user: LogicalUser) -> JsonValue {
+pub fn profile(user: User) -> JsonValue {
+	if let Ok(user) = user.as_json() {
+		return json!({
+			"status": true,
+			"user": user
+		});
+	}
+
 	json!({
-		"status": true,
-		"user": user
+		"status": false
 	})
 }
 
-#[post("/", format = "application/json", data = "<json_user>")]
+#[post("/", format = "application/json", data = "<user_json>")]
 pub fn profile_update(
 	conn: DatabaseConnection,
-	user: LogicalUser,
-	json_user: Json<LogicalUser>,
+	user: User,
+	user_json: Json<UserJson>,
 ) -> JsonValue {
-	if let Some(id) = user.id {
-		if let Ok(user) = user_dsl::user
-			.filter(user_dsl::id.eq(id))
-			.first::<User>(&conn.0)
-		{
-			let result = diesel::update(&user)
-				.set((
-					user_dsl::email.eq(&json_user.email),
-					user_dsl::name.eq(&json_user.name),
-				))
-				.execute(&conn.0);
+	let model = user.as_model();
 
-			if result.is_ok() {
-				let user: LogicalUser = user.into();
+	if let Ok(user) = user_dsl::user
+		.filter(user_dsl::id.eq(model.id))
+		.first::<UserModel>(&conn.0)
+	{
+		let result = diesel::update(&user)
+			.set((
+				user_dsl::email.eq(&user_json.email),
+				user_dsl::name.eq(&user_json.name),
+			))
+			.execute(&conn.0);
 
-				return json!({
-					"status": true,
-					"user": user
-				});
+		if result.is_ok() {
+			if let Ok(user) = User::new(&conn, model.id) {
+				match user.as_json() {
+					Ok(json) => {
+						return json!({
+							"status": true,
+							"user": json
+						});
+					}
+					Err(_) => {
+						return json!({
+							"status": false
+						});
+					}
+				}
 			}
 		}
 	}
@@ -60,36 +76,45 @@ pub struct NewPassword {
 	new_again: String,
 }
 
-#[post("/change-password", format = "json", data = "<data>")]
+#[post("/change-password", format = "json", data = "<new_password>")]
 pub fn profile_change_password(
 	conn: DatabaseConnection,
-	logical_user: LogicalUser,
-	data: Json<NewPassword>,
+	user: User,
+	new_password: Json<NewPassword>,
 ) -> JsonValue {
-	if data.new != data.new_again {
+	if new_password.new != new_password.new_again {
 		return json!({
 			"status": false,
 			"reason": "There is no password match"
 		});
 	}
 
-	if let Some(id) = logical_user.id {
-		if logical_user.password == generate_password(data.old.as_str()) {
-			if let Ok(user) = user_dsl::user
-				.filter(user_dsl::id.eq(id))
-				.first::<User>(&conn.0)
-			{
-				let result = diesel::update(&user)
-					.set(user_dsl::password.eq(generate_password(data.new.as_str())))
-					.execute(&conn.0);
+	let user_model = user.as_model();
 
-				if result.is_ok() {
-					let user: LogicalUser = user.into();
+	if user_model.password.clone().unwrap() == generate_password(new_password.old.as_str()) {
+		if let Ok(user) = user_dsl::user
+			.filter(user_dsl::id.eq(user_model.id))
+			.first::<UserModel>(&conn.0)
+		{
+			let update_result = diesel::update(&user)
+				.set(user_dsl::password.eq(generate_password(new_password.new.as_str())))
+				.execute(&conn.0);
 
-					return json!({
-						"status": true,
-						"user": user
-					});
+			if update_result.is_ok() {
+				if let Ok(user) = User::new(&conn, user_model.id) {
+					match user.as_json() {
+						Ok(json) => {
+							return json!({
+								"status": true,
+								"user": json
+							});
+						}
+						Err(_) => {
+							return json!({
+								"status": false
+							});
+						}
+					}
 				}
 			}
 		}

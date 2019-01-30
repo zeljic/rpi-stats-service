@@ -14,6 +14,7 @@
 										label="E-Mail"
 										:disabled="disabled"
 										v-model="email"
+										outline
 										autofocus
 									></v-text-field>
 
@@ -21,15 +22,15 @@
 										label="Password"
 										:disabled="disabled"
 										v-model="password"
+										outline
 										type="password"
 									></v-text-field>
 								</v-card-text>
 
 								<v-card-actions>
 									<v-spacer></v-spacer>
-									<v-btn type="submit">
-										Login
-									</v-btn>
+									<v-btn type="reset" :disabled="disabled" color="default">Reset</v-btn>
+									<v-btn type="submit" :disabled="disabled" color="primary">Login</v-btn>
 								</v-card-actions>
 							</v-card>
 
@@ -58,9 +59,6 @@
 				this.disabled = true;
 
 				this.$user.login(this.email, this.password).then(() =>
-				{
-					this.disabled = false;
-				}).then(() =>
 				{
 					this.disabled = false;
 				});
