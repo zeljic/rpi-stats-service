@@ -1,10 +1,10 @@
 class User
 {
-	constructor(Vue, store)
+	constructor(Vue)
 	{
 		this.$vue = new Vue();
 		this.$http = this.$vue.$http;
-		this.$store = store;
+		this.$store = this.$vue.$store;
 	}
 
 	install(Vue)
@@ -33,9 +33,9 @@ class User
 		{
 			if (response.data.status === true && response.data.token)
 			{
-				this.$store.commit('user.token', response.data.token);
+				this.$store.commit('user/token', response.data.token);
 
-				this.$store.commit('user.logged', true);
+				this.$store.commit('user/logged', true);
 			}
 		});
 	}
@@ -49,9 +49,11 @@ class User
 		{
 			if (response.data.status === true)
 			{
-				this.$store.commit('user.logged', false);
-				this.$store.commit('user.profile', null);
-				this.$store.commit('user.token', null);
+				this.$store.commit('user/logged', false);
+				this.$store.commit('user/profile', null);
+				this.$store.commit('user/token', null);
+
+				this.$store.dispatch('user/cleanup').finally();
 			}
 		});
 	}
@@ -65,7 +67,7 @@ class User
 		{
 			if (response.data.status === true && response.data.user)
 			{
-				this.$store.commit('user.profile', response.data.user);
+				this.$store.commit('user/profile', response.data.user);
 			}
 		});
 	}

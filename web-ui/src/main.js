@@ -1,20 +1,21 @@
 import Vue from 'vue';
 import './plugins/vuetify';
 import router from './router/router';
-import store from './store/store';
 
+import './plugins/bus';
+import Store from './plugins/store';
 import Http from './plugins/http';
-import User from './common/User';
+import User from './plugins/user';
 
 import Layout from './layout/Layout.vue';
 
 Vue.config.productionTip = false;
 
-Vue.use(new Http(Vue, store));
-Vue.use(new User(Vue, store));
+Vue.use(new Store(Vue));
+Vue.use(new Http(Vue));
+Vue.use(new User(Vue));
 
 new Vue({
 	router,
-	store,
 	render: h => h(Layout)
 }).$mount('#app');
