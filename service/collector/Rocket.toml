@@ -3,4 +3,4 @@ address = "127.0.0.1"
 port = 8000
 
 [global.databases]
-db = { url = "database.db", pool_size = 4 }
+db = { url = "../database.db", pool_size = 4 }
