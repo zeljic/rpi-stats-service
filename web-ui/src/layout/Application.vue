@@ -1,31 +1,21 @@
 <template>
 	<v-app>
-		<v-navigation-drawer app fixed v-model="drawer">
-			<v-list dense>
-				<v-list-tile v-for="item in sidebar" :key="item.url" :to="item.url">
-					<v-list-tile-action>
-						<v-icon>{{item.icon}}</v-icon>
-					</v-list-tile-action>
-					<v-list-tile-content>
-						<v-list-tile-title>{{item.title}}</v-list-tile-title>
-					</v-list-tile-content>
-				</v-list-tile>
-			</v-list>
-		</v-navigation-drawer>
-		<v-toolbar app fixed dense class="elevation-1">
-			<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+		<v-toolbar app fixed dense class="elevation-1 white">
 			<v-toolbar-title>Linden IO</v-toolbar-title>
 
 			<v-spacer></v-spacer>
 
 			<v-toolbar-items>
-				<v-btn v-for="item in sidebar" :key="item.url" flat :to="item.url">
-					<v-icon left small>{{item.icon}}</v-icon>
-					{{item.title}}
-				</v-btn>
+				<template v-for="item in sidebar">
+					<v-btn :key="item.url" flat :to="item.url">
+						<v-icon left small>{{item.icon}}</v-icon>
+						{{item.title}}
+					</v-btn>
+					<v-divider vertical :key="item.url + '-divider'"></v-divider>
+				</template>
 
 				<v-menu v-model="profileMenu" offset-y lazy :disabled="!profile">
-					<v-btn slot="activator" icon :disabled="!profile">
+					<v-btn slot="activator" :disabled="!profile" flat icon>
 						<v-icon small flat>fa fa-user</v-icon>
 					</v-btn>
 
@@ -64,14 +54,12 @@
 		data()
 		{
 			return {
-				drawer: true,
 				profileMenu: false
 			};
 		},
 		computed: {
 			...mapGetters({
-				profile: 'user.profile',
-				'user.profile': 'user.profile'
+				profile: 'user/profile'
 			}),
 			sidebar()
 			{

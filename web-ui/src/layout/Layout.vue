@@ -2,7 +2,7 @@
 	<component :is="component"/>
 </template>
 <script>
-	const App = () => import(/* webpackChunkName: "application" */ './App.vue');
+	const Application = () => import(/* webpackChunkName: "application" */ './Application.vue');
 	const Login = () => import(/* webpackChunkName: "login" */ './Login.vue');
 	const Blank = () => import(/* webpackChunkName: "blank" */ './Blank.vue');
 
@@ -10,20 +10,20 @@
 
 	export default {
 		name: 'layout',
-		components: {Blank, App, Login},
+		components: {Blank, Application, Login},
 		data()
 		{
 			return {
-				initialCheck: false,
-				userStatus: false
+				check: false,
+				status: false
 			};
 		},
 		computed: {
 			component()
 			{
-				if (this.userStatus && this.initialCheck)
-					return 'app';
-				else if (!this.userStatus && this.initialCheck)
+				if (this.status && this.check)
+					return 'application';
+				else if (!this.status && this.check)
 					return 'login';
 				else
 					return 'blank';
@@ -31,19 +31,16 @@
 		},
 		mounted()
 		{
-			unwatch = this.$store.watch((state) =>
+			unwatch = this.$store.watch((state, getters) => getters['user/logged'], (v) =>
 			{
-				return state.user.logged;
-			}, (v) =>
-			{
-				this.userStatus = v;
+				this.status = v;
 			});
 
-			this.$user.is().then((response) =>
+			this.$store.dispatch('user/is', {
+				$user: this.$user
+			}).then(() =>
 			{
-				this.initialCheck = true;
-
-				this.$store.commit('user.logged', response.data.status && response.data.logged);
+				this.check = true;
 			});
 		},
 		destroyed()

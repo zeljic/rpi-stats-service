@@ -80,7 +80,7 @@
 		},
 		computed: {
 			...mapGetters({
-				profile: 'user.profile'
+				profile: 'user/profile'
 			}),
 			btnChangePasswordDisabled()
 			{

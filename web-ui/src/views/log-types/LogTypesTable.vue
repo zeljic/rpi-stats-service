@@ -1,12 +1,14 @@
 <template>
 	<v-container grid-list-md>
-		<h1>Instances Table View</h1>
+		<toolbar>
+			Log types
+		</toolbar>
 	</v-container>
 </template>
 
 <script>
 	export default {
-		name: 'instances-table-view',
+		name: '',
 		data()
 		{
 			return {};
@@ -17,3 +19,7 @@
 		methods: {}
 	};
 </script>
+
+<style scoped>
+
+</style>
