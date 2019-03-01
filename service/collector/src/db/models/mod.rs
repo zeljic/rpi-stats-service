@@ -7,7 +7,9 @@ pub mod log;
 pub mod log_type;
 pub mod mesh;
 pub mod mesh_instance;
+pub mod schema;
 pub mod user;
+pub mod user_mesh;
 
 use std::error;
 use std::fmt;

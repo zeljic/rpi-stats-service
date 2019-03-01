@@ -10,8 +10,8 @@ use rocket::request::FromRequest;
 use rocket::{Outcome, Request};
 use std::sync::RwLock;
 
-use crate::db::dmodels::schema::user;
-use crate::db::dmodels::schema::user::dsl as user_dsl;
+use crate::db::models::schema::user;
+use crate::db::models::schema::user::dsl as user_dsl;
 use crate::db::models::AsJsonError;
 use crate::db::models::ModelAs;
 use diesel::prelude::*;
@@ -43,10 +43,7 @@ pub struct User {
 
 impl User {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
-		if let Ok(model) = user_dsl::user
-			.filter(user_dsl::id.eq(id))
-			.first::<UserModel>(&conn.0)
-		{
+		if let Ok(model) = user_dsl::user.find(id).first::<UserModel>(&conn.0) {
 			return Ok(User {
 				model: Rc::new(model),
 			});

@@ -55,9 +55,28 @@ table! {
 	}
 }
 
+table! {
+	user_mesh (id) {
+		id -> Integer,
+		user_id -> Integer,
+		mesh_id -> Integer,
+		enabled -> Bool,
+	}
+}
+
 joinable!(log -> instance (instance_id));
 joinable!(log -> log_type (log_type_id));
 joinable!(mesh_instance -> instance (instance_id));
 joinable!(mesh_instance -> mesh (mesh_id));
+joinable!(user_mesh -> mesh (mesh_id));
+joinable!(user_mesh -> user (user_id));
 
-allow_tables_to_appear_in_same_query!(instance, log, log_type, mesh, mesh_instance, user,);
+allow_tables_to_appear_in_same_query!(
+	instance,
+	log,
+	log_type,
+	mesh,
+	mesh_instance,
+	user,
+	user_mesh,
+);

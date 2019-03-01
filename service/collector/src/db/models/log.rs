@@ -1,4 +1,4 @@
-use crate::db::dmodels::schema::log;
+use crate::db::models::schema::log;
 use std::error;
 
 use crate::db::models::ModelAs;
@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
-#[derive(Debug, Queryable, Identifiable, Clone)]
+#[derive(Debug, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "log"]
 pub struct LogModel {
 	pub id: i32,

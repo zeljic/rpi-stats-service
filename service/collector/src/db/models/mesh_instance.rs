@@ -1,9 +1,13 @@
-use crate::db::dmodels::schema::mesh_instance;
+use crate::db::models::instance::InstanceModel;
+use crate::db::models::mesh::MeshModel;
+use crate::db::models::schema::mesh_instance;
 use crate::db::models::ModelAs;
 use std::rc::Rc;
 
-#[derive(Debug, Queryable, Identifiable, Clone)]
+#[derive(Debug, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "mesh_instance"]
+#[belongs_to(MeshModel, foreign_key = "mesh_id")]
+#[belongs_to(InstanceModel, foreign_key = "instance_id")]
 pub struct MeshInstanceModel {
 	pub id: i32,
 	pub mesh_id: i32,

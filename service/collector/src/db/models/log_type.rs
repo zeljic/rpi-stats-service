@@ -1,4 +1,4 @@
-use crate::db::dmodels::schema::log_type;
+use crate::db::models::schema::log_type;
 use crate::db::models::ModelAs;
 use std::rc::Rc;
 

@@ -1,4 +1,3 @@
-pub mod dmodels;
 pub mod models;
 
 #[database("db")]

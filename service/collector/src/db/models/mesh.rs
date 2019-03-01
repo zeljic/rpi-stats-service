@@ -1,10 +1,10 @@
 use crate::db::DatabaseConnection;
 
-use crate::db::dmodels::schema::mesh::dsl as mesh_dsl;
+use crate::db::models::schema::mesh::dsl as mesh_dsl;
 use diesel::prelude::*;
 use std::rc::Rc;
 
-use crate::db::dmodels::schema::mesh;
+use crate::db::models::schema::mesh;
 use crate::db::models::ModelAs;
 
 use crate::db::models::AsJsonError;
@@ -36,10 +36,7 @@ pub struct Mesh {
 
 impl Mesh {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
-		if let Ok(model) = mesh_dsl::mesh
-			.filter(mesh_dsl::id.eq(id))
-			.first::<MeshModel>(&conn.0)
-		{
+		if let Ok(model) = mesh_dsl::mesh.find(id).first::<MeshModel>(&conn.0) {
 			return Ok(Mesh {
 				model: Rc::new(model),
 			});

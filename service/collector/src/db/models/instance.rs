@@ -4,7 +4,7 @@ use rocket::request::FromRequest;
 use rocket::Outcome;
 use rocket::Request;
 
-use crate::db::dmodels::schema::instance;
+use crate::db::models::schema::instance;
 use crate::db::models::AsJsonError;
 use crate::db::models::ModelAs;
 use crate::db::DatabaseConnection;
@@ -12,7 +12,7 @@ use diesel::prelude::*;
 use std::error;
 use std::rc::Rc;
 
-use crate::db::dmodels::schema::instance::dsl as instance_dsl;
+use crate::db::models::schema::instance::dsl as instance_dsl;
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
@@ -42,7 +42,7 @@ pub struct Instance {
 impl Instance {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		if let Ok(model) = instance_dsl::instance
-			.filter(instance_dsl::id.eq(id))
+			.find(id)
 			.first::<InstanceModel>(&conn.0)
 		{
 			return Ok(Instance {
