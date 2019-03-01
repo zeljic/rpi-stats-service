@@ -1,3 +1,11 @@
+create table `user` (
+    `id` integer not null primary key autoincrement,
+    `name` varchar(64),
+    `email` varchar(320),
+    `password` varchar(64),
+    `enabled` boolean not null default 0
+);
+
 create table `instance` (
 	`id` integer not null primary key autoincrement,
 	`uuid` varchar(64) not null unique,
@@ -43,16 +51,9 @@ create table `user_mesh` (
     `id` integer not null primary key autoincrement,
     `user_id` integer not null,
     `mesh_id` integer not null,
+    `enabled` boolean not null default 0,
     foreign key(`user_id`) references user(`id`),
     foreign key(`mesh_id`) references mesh(`id`)
-);
-
-create table `user` (
-    `id` integer not null primary key autoincrement,
-    `name` varchar(64),
-    `email` varchar(320),
-    `password` varchar(64),
-    `enabled` boolean not null default 0
 );
 
 create index `idx_instance_id` on `instance` (`id`);
