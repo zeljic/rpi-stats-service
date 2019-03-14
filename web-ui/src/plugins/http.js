@@ -14,9 +14,20 @@ class Http
 			const token = this.$store.getters['user/token'];
 
 			if (token)
+			{
 				axios.defaults.headers.common['X-Token'] = token;
+			}
 
-			return axios(conf);
+			console.log('$http sent request');
+
+			const promise = axios(conf);
+
+			promise.finally(() =>
+			{
+				console.log('$http got response');
+			});
+
+			return promise;
 		};
 	}
 }
