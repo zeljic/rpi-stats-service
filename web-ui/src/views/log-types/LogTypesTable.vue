@@ -1,9 +1,9 @@
 <template>
-	<v-container grid-list-md>
+	<container-view>
 		<toolbar>
 			Log types
 		</toolbar>
-	</v-container>
+	</container-view>
 </template>
 
 <script>
@@ -11,10 +11,25 @@
 		name: '',
 		data()
 		{
-			return {};
+			return {
+				items: []
+			};
 		},
 		created()
 		{
+			this.$http({
+				url: '/api/log-type',
+				method: 'get'
+			}).then(({status, data}) =>
+			{
+				if (status === 200)
+				{
+					this.items = data.list;
+				}
+			}).finally(() =>
+			{
+				console.log(arguments);
+			});
 		},
 		methods: {}
 	};

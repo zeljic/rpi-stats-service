@@ -1,9 +1,7 @@
 <template>
-	<v-container grid-md-list>
-		<toolbar>
-			Meshes
-		</toolbar>
-	</v-container>
+	<container-view>
+		<toolbar>Meshes</toolbar>
+	</container-view>
 </template>
 
 <script>

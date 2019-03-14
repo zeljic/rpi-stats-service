@@ -1,7 +1,8 @@
 import Toolbar from '../components/Toolbar';
+import ContainerView from '../components/ContainerView';
 
-class Common {
-
+class Common
+{
 	constructor()
 	{
 
@@ -10,8 +11,8 @@ class Common {
 	install(Vue)
 	{
 		Vue.component('toolbar', Toolbar);
+		Vue.component('container-view', ContainerView);
 	}
-
 }
 
 export default Common;

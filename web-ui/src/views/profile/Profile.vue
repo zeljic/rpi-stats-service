@@ -1,5 +1,8 @@
 <template>
-	<v-container grid-list-lg fluid v-if="profile">
+	<container-view v-if="profile">
+
+		<toolbar>Profile</toolbar>
+
 		<v-layout>
 			<v-flex xs12 md8 lg6 xl4>
 				<v-form ref="frmProfile" v-model="frmProfileValid" @submit.prevent="frmProfileSubmit">
@@ -58,7 +61,7 @@
 				</v-form>
 			</v-flex>
 		</v-layout>
-	</v-container>
+	</container-view>
 </template>
 <script>
 	import {mapGetters} from 'vuex';

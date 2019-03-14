@@ -14,6 +14,12 @@
 					<v-divider vertical :key="item.url + '-divider'"></v-divider>
 				</template>
 
+				<v-btn flat icon @click="$store.commit('ui/fluid', !fluid)">
+					<v-icon small>fas {{fluid ? 'fa-compress' : 'fa-expand'}}</v-icon>
+				</v-btn>
+
+				<v-divider vertical></v-divider>
+
 				<v-menu v-model="profileMenu" offset-y lazy :disabled="!profile">
 					<v-btn slot="activator" :disabled="!profile" flat icon>
 						<v-icon small flat>fa fa-user</v-icon>
@@ -59,7 +65,8 @@
 		},
 		computed: {
 			...mapGetters({
-				profile: 'user/profile'
+				profile: 'user/profile',
+				fluid: 'ui/fluid'
 			}),
 			sidebar()
 			{

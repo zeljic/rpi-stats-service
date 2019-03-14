@@ -1,12 +1,12 @@
 <template>
-	<v-container grid-list-md>
+	<container-view>
 		<toolbar>
 			Instances
 			<template slot="actions">
 				<v-btn flat>Do it!</v-btn>
 			</template>
 		</toolbar>
-	</v-container>
+	</container-view>
 </template>
 
 <script>
