@@ -22,7 +22,9 @@ table! {
 table! {
 	log_type (id) {
 		id -> Integer,
+		user_id -> Integer,
 		name -> Text,
+		description -> Nullable<Text>,
 		enabled -> Bool,
 	}
 }
@@ -66,6 +68,7 @@ table! {
 
 joinable!(log -> instance (instance_id));
 joinable!(log -> log_type (log_type_id));
+joinable!(log_type -> user (user_id));
 joinable!(mesh_instance -> instance (instance_id));
 joinable!(mesh_instance -> mesh (mesh_id));
 joinable!(user_mesh -> mesh (mesh_id));

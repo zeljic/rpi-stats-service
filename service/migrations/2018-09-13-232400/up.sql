@@ -16,8 +16,11 @@ create table `instance` (
 
 create table `log_type` (
 	`id` integer not null primary key autoincrement,
+	`user_id` integer not null,
 	`name` varchar(16) not null,
-	`enabled` boolean not null default 0
+	`description` text,
+	`enabled` boolean not null default 0,
+	foreign key(`user_id`) references user(`id`)
 );
 
 create table `log` (
