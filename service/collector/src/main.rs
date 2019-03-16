@@ -46,6 +46,9 @@ fn main() {
 		.mount("/", routes::basic::get_routes())
 		.mount("/api/auth", routes::auth::get_routes())
 		.mount("/api/user", routes::user::get_routes())
+		.mount("/api/instance", routes::instance::get_routes())
+		.mount("/api/mesh", routes::mesh::get_routes())
+		.mount("/api/log-type", routes::log_type::get_routes())
 		.register(catchers![error_400, error_404])
 		.launch();
 }

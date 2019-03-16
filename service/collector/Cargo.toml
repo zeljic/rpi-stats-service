@@ -6,11 +6,11 @@ edition = "2018"
 
 [dependencies]
 rust-crypto = "0.2.36"
-rand = "0.6.4"
+rand = "0.6.5"
 
-serde = "1.0.85"
-serde_json = "1.0.37"
-serde_derive = "1.0.85"
+serde = "1.0.89"
+serde_json = "1.0.39"
+serde_derive = "1.0.89"
 
 rocket = "0.4.0"
 rocket_codegen = "0.4.0"
