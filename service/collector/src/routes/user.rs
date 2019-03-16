@@ -5,7 +5,7 @@ use rocket::Route;
 use rocket_contrib::json::Json;
 use rocket_contrib::json::JsonValue;
 
-use crate::db::dmodels::schema::user::dsl as user_dsl;
+use crate::db::models::schema::user::dsl as user_dsl;
 use crate::db::models::user::User;
 use crate::db::models::user::UserModel;
 use crate::db::models::ModelAs;
