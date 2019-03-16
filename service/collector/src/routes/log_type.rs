@@ -17,7 +17,7 @@ pub fn get(conn: DatabaseConnection, user: User) -> JsonValue {
 	if let Ok(list) = LogTypeModel::belonging_to(&user_model).load::<LogTypeModel>(&conn.0) {
 		let list = list
 			.into_iter()
-			.map(|item| item.into())
+			.map(std::convert::Into::into)
 			.collect::<Vec<LogTypeJson>>();
 
 		return json!({
