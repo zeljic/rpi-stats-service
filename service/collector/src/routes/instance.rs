@@ -12,13 +12,7 @@ use rocket::Route;
 pub fn get(conn: DatabaseConnection, user: User) -> JsonValue {
 	let model: UserModel = user.as_model().as_ref().clone();
 
-	if let Ok(list) = UserMeshModel::belonging_to(&model).load::<UserMeshModel>(&conn.0) {
-		let list: Vec<UserMeshModel> = list;
-
-		let _list = list.into_iter().map(|item| {
-			return item;
-		});
-	}
+	if let Ok(_list) = UserMeshModel::belonging_to(&model).load::<UserMeshModel>(&conn.0) {}
 
 	json!({
 		"status": false

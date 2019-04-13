@@ -11,8 +11,10 @@ pub mod schema;
 pub mod user;
 pub mod user_mesh;
 
+use rocket::{Request, Response, response::Responder};
 use std::error;
 use std::fmt;
+use std::io::Cursor;
 
 #[derive(Debug, Clone)]
 pub struct AsJsonError {
@@ -20,7 +22,7 @@ pub struct AsJsonError {
 }
 
 impl AsJsonError {
-	fn new(reason: &str) -> Self {
+	pub fn new(reason: &str) -> Self {
 		AsJsonError {
 			reason: reason.to_string(),
 		}
@@ -36,6 +38,22 @@ impl fmt::Display for AsJsonError {
 impl error::Error for AsJsonError {
 	fn description(&self) -> &str {
 		self.reason.as_str()
+	}
+}
+
+impl<'r> Responder<'r> for AsJsonError {
+	fn respond_to(self, _request: &Request) -> rocket::response::Result<'r> {
+		let content = json!({
+			"status": false,
+			"reason": self.reason
+		})
+		.0
+		.to_string();
+
+		Response::build()
+			.header(rocket::http::ContentType::JSON)
+			.sized_body(Cursor::new(content))
+			.ok()
 	}
 }
 

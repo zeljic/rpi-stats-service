@@ -8,7 +8,7 @@ use crate::db::models::schema::log_type::dsl as log_type_dsl;
 use crate::db::models::AsJsonError;
 use diesel::prelude::*;
 
-use crate::db::models::user::UserModel;
+use crate::db::models::user::{User, UserModel};
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
@@ -23,13 +23,14 @@ pub struct LogTypeModel {
 	pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone, Insertable, AsChangeset)]
+#[table_name = "log_type"]
 pub struct LogTypeJson {
-	pub id: i32,
-	pub user_id: i32,
-	pub name: String,
+	pub id: Option<i32>,
+	pub user_id: Option<i32>,
+	pub name: Option<String>,
 	pub description: Option<String>,
-	pub enabled: bool,
+	pub enabled: Option<bool>,
 }
 
 #[derive(Debug)]
@@ -50,6 +51,19 @@ impl LogType {
 
 		Err(Box::new(AsJsonError::new("Unable to read log_type by id")))
 	}
+
+	pub fn is_user_id(&self, user: &User) -> bool {
+		self.model.user_id == user.as_model().id
+	}
+
+	pub fn from_json(conn: &DatabaseConnection, json: &LogTypeJson) -> Result<Self> {
+		match json.id {
+			None => Err(Box::new(AsJsonError::new(
+				"Unable to read log_type_json id",
+			))),
+			Some(id) => LogType::new(conn, id),
+		}
+	}
 }
 
 impl<'de> ModelAs<'de> for LogType {
@@ -58,6 +72,12 @@ impl<'de> ModelAs<'de> for LogType {
 
 	fn as_model(&self) -> Rc<Self::OutputModel> {
 		Rc::clone(&self.model)
+	}
+}
+
+impl From<Rc<LogTypeJson>> for LogTypeJson {
+	fn from(rc_json: Rc<LogTypeJson>) -> Self {
+		rc_json.as_ref().clone()
 	}
 }
 
@@ -70,11 +90,11 @@ impl From<Rc<LogTypeModel>> for LogTypeJson {
 impl From<LogTypeModel> for LogTypeJson {
 	fn from(model: LogTypeModel) -> Self {
 		Self {
-			id: model.id,
-			user_id: model.user_id,
-			name: model.name,
+			id: Option::from(model.id),
+			user_id: Option::from(model.user_id),
+			name: Option::from(model.name),
 			description: model.description,
-			enabled: model.enabled,
+			enabled: Option::from(model.enabled),
 		}
 	}
 }

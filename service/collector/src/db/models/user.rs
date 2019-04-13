@@ -30,11 +30,12 @@ pub struct UserModel {
 	pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserJson {
 	pub id: Option<i32>,
 	pub name: String,
 	pub email: String,
+	pub enabled: bool,
 }
 
 pub struct User {
@@ -97,6 +98,14 @@ impl User {
 			Err(_) => None,
 		}
 	}
+
+	pub fn am_i_id(&self, id: Option<i32>) -> bool {
+		if let Some(id) = id {
+			id == self.model.id
+		} else {
+			false
+		}
+	}
 }
 
 impl<'a, 'r> FromRequest<'a, 'r> for User {
@@ -119,6 +128,12 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
 	}
 }
 
+impl From<Rc<UserJson>> for UserJson {
+	fn from(rc_user_json: Rc<UserJson>) -> Self {
+		rc_user_json.as_ref().clone()
+	}
+}
+
 impl From<Rc<UserModel>> for UserJson {
 	fn from(user_model: Rc<UserModel>) -> Self {
 		let model: UserModel = user_model.as_ref().clone();
@@ -127,6 +142,7 @@ impl From<Rc<UserModel>> for UserJson {
 			id: Option::from(user_model.id),
 			name: model.name.unwrap_or_else(|| String::from("")),
 			email: model.email.unwrap_or_else(|| String::from("")),
+			enabled: model.enabled,
 		}
 	}
 }
