@@ -1,5 +1,5 @@
 <template>
-	<v-container grid-list-xl :fluid="fluid">
+	<v-container grid-list-md :fluid="fluid">
 		<slot></slot>
 	</v-container>
 </template>

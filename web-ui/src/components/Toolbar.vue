@@ -1,5 +1,5 @@
 <template>
-	<v-toolbar dense class="elevation-1">
+	<v-toolbar dense class="elevation-1" color="white">
 		<v-toolbar-title>
 			<slot></slot>
 		</v-toolbar-title>
