@@ -1,40 +1,110 @@
 <template>
 	<container-view>
-		<toolbar>
-			Log types
-		</toolbar>
+
+		<v-layout row wrap>
+			<v-flex xs12>
+				<toolbar>
+					Log types
+
+					<template v-slot:actions>
+						<v-btn icon flat to="log-types/create">
+							<v-icon small>fas fa-plus</v-icon>
+						</v-btn>
+
+						<v-btn icon flat @click="fetch">
+							<v-icon small>fas fa-sync</v-icon>
+						</v-btn>
+					</template>
+				</toolbar>
+			</v-flex>
+
+			<v-flex xs12>
+				<v-data-table
+					:headers="headers"
+					:items="items"
+					:loading="loading"
+					class="elevation-1"
+					hide-actions
+				>
+					<template v-slot:items="props">
+						<td class="w-10">{{props.item.id}}</td>
+						<td class="w-200">{{props.item.name}}</td>
+						<td>{{props.item.description}}</td>
+						<td class="text-xs-center">
+							<v-icon small>fas {{props.item.enabled ? 'fa-check' : 'fa-clock'}}</v-icon>
+						</td>
+						<td class="w-10 pa-0 text-xs-center">
+							<TableBarButton>
+								<v-list dense>
+									<v-list-tile :to="'/log-types/update/' + props.item.id">
+										<v-list-tile-avatar>
+											<v-icon small>fas fa-pencil-alt</v-icon>
+										</v-list-tile-avatar>
+										<v-list-tile-content>
+											<v-list-tile-title>Edit</v-list-tile-title>
+										</v-list-tile-content>
+									</v-list-tile>
+
+									<v-list-tile disabled>
+										<v-list-tile-avatar>
+											<v-icon small>fas fa-trash-alt</v-icon>
+										</v-list-tile-avatar>
+										<v-list-tile-content>
+											<v-list-tile-title>Delete</v-list-tile-title>
+										</v-list-tile-content>
+									</v-list-tile>
+								</v-list>
+							</TableBarButton>
+						</td>
+					</template>
+				</v-data-table>
+			</v-flex>
+		</v-layout>
 	</container-view>
 </template>
 
 <script>
+	import TableBarButton from '../../components/TableBarsButton';
+
 	export default {
-		name: '',
+		name: 'log-types-table',
+		components: {TableBarButton},
 		data()
 		{
 			return {
+				loading: false,
+				headers: [
+					{text: 'ID', value: 'id'},
+					{text: 'Name', value: 'name'},
+					{text: 'Description', value: 'description'},
+					{text: 'Status', value: 'enabled', align: 'center', class: 'w-50', sortable: false},
+					{text: '', value: 'id', 'class': 'pa-0 ma-0', sortable: false}
+				],
 				items: []
 			};
 		},
 		created()
 		{
-			this.$http({
-				url: '/api/log-type',
-				method: 'get'
-			}).then(({status, data}) =>
-			{
-				if (status === 200)
-				{
-					this.items = data.list;
-				}
-			}).finally(() =>
-			{
-				console.log(arguments);
-			});
+			this.fetch();
 		},
-		methods: {}
+		methods: {
+			fetch()
+			{
+				this.loading = false;
+
+				this.items = [];
+
+				this.$http({
+					url: '/api/log-type',
+					method: 'get'
+				}).then(({status, data}) =>
+				{
+					if (status === 200)
+					{
+						this.items = data.list;
+					}
+				}).finally(() => this.loading = false);
+			}
+		}
 	};
 </script>
-
-<style scoped>
-
-</style>
