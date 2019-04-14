@@ -54,7 +54,7 @@ pub fn create(
 		Ok(_) => json!({
 			"status": true
 		}),
-		Err(_) => json!({
+		Err(e) => json!({
 			"status": false
 		}),
 	}
@@ -87,7 +87,7 @@ pub fn update(
 	let update_request = &update_request.into_inner();
 
 	if let Ok(log_type) = LogType::from_json(&conn, update_request) {
-		if log_type.is_user_id(&user) {
+		if !log_type.is_user_id(&user) {
 			return Err(AsJsonError::new("Security issue"));
 		}
 
