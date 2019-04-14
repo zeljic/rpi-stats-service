@@ -1,0 +1,2 @@
+-- Your SQL goes here
+INSERT INTO "user"("id", "name", "email", "password", "enabled") VALUES(1, 'Đorđe Zeljić', 'zeljic@gmail.com', '65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5', true);
