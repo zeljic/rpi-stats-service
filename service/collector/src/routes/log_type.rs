@@ -54,7 +54,7 @@ pub fn create(
 		Ok(_) => json!({
 			"status": true
 		}),
-		Err(e) => json!({
+		Err(_) => json!({
 			"status": false
 		}),
 	}
