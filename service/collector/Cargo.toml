@@ -8,14 +8,14 @@ edition = "2018"
 rust-crypto = "0.2.36"
 rand = "0.6.5"
 
-serde = "1.0.89"
+serde = "1.0.90"
+serde_derive = "1.0.90"
 serde_json = "1.0.39"
-serde_derive = "1.0.89"
 
 rocket = "0.4.0"
 rocket_codegen = "0.4.0"
-rocket_contrib = { version = "0.4.0", default-features = false, features = ["json", "diesel_sqlite_pool"] }
+rocket_contrib = { version = "0.4.0", default-features = false, features = ["json", "diesel_postgres_pool"] }
 
 [dependencies.diesel]
-version = "1.4.1"
-features = ["sqlite"]
+version = "1.4.2"
+features = ["postgres"]
