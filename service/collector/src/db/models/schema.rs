@@ -1,8 +1,8 @@
 table! {
 	instance (id) {
-		id -> Integer,
-		uuid -> Text,
-		name -> Text,
+		id -> Int4,
+		uuid -> Varchar,
+		name -> Varchar,
 		description -> Nullable<Text>,
 		enabled -> Bool,
 	}
@@ -10,20 +10,20 @@ table! {
 
 table! {
 	log (id) {
-		id -> Integer,
-		instance_id -> Integer,
-		log_type_id -> Integer,
-		date_time -> Integer,
-		value -> Float,
+		id -> Int4,
+		instance_id -> Int4,
+		log_type_id -> Int4,
+		date_time -> Int4,
+		value -> Float4,
 		enabled -> Bool,
 	}
 }
 
 table! {
 	log_type (id) {
-		id -> Integer,
-		user_id -> Integer,
-		name -> Text,
+		id -> Int4,
+		user_id -> Int4,
+		name -> Varchar,
 		description -> Nullable<Text>,
 		enabled -> Bool,
 	}
@@ -31,8 +31,8 @@ table! {
 
 table! {
 	mesh (id) {
-		id -> Integer,
-		name -> Text,
+		id -> Int4,
+		name -> Varchar,
 		description -> Nullable<Text>,
 		enabled -> Bool,
 	}
@@ -40,28 +40,28 @@ table! {
 
 table! {
 	mesh_instance (id) {
-		id -> Integer,
-		mesh_id -> Integer,
-		instance_id -> Integer,
+		id -> Int4,
+		mesh_id -> Int4,
+		instance_id -> Int4,
 		enabled -> Bool,
 	}
 }
 
 table! {
 	user (id) {
-		id -> Integer,
-		name -> Nullable<Text>,
-		email -> Nullable<Text>,
-		password -> Nullable<Text>,
+		id -> Int4,
+		name -> Nullable<Varchar>,
+		email -> Nullable<Varchar>,
+		password -> Nullable<Varchar>,
 		enabled -> Bool,
 	}
 }
 
 table! {
 	user_mesh (id) {
-		id -> Integer,
-		user_id -> Integer,
-		mesh_id -> Integer,
+		id -> Int4,
+		user_id -> Int4,
+		mesh_id -> Int4,
 		enabled -> Bool,
 	}
 }
