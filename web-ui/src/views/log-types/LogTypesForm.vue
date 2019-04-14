@@ -91,7 +91,7 @@
 			{
 				this.$http({
 					url: '/api/log-type',
-					method: this.mode === model.mode.CREATE ? 'UPDATE' : 'PUT',
+					method: this.mode === model.mode.CREATE ? 'POST' : 'PUT',
 					data: {
 						...this.item
 					}
