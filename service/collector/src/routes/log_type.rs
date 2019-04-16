@@ -13,6 +13,7 @@ use crate::db::models::log_type::LogTypeJson;
 use diesel::prelude::*;
 
 use crate::db::models::schema::log_type::dsl as log_type_dsl;
+use std::error::Error;
 
 #[get("/", format = "application/json")]
 pub fn list(conn: DatabaseConnection, user: User) -> JsonValue {
@@ -114,7 +115,35 @@ pub fn update(
 		"status": false
 	}))
 }
+#[delete("/<id>")]
+pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, AsJsonError> {
+	let log_type = LogType::new(&conn, id as i32);
+
+	match log_type {
+		Ok(log_type) => {
+			if !log_type.is_user_id(&user) {
+				return Err("Security issue".into());
+			}
+
+			match diesel::delete(log_type_dsl::log_type.filter(log_type_dsl::id.eq(id as i32)))
+				.execute(&conn.0)
+			{
+				Ok(_size) => {
+					return Ok(json!({
+						"status": true
+					}));
+				}
+				Err(e) => {
+					return Err(e.description().into());
+				}
+			}
+		}
+		Err(e) => {
+			return Err(e.description().into());
+		}
+	}
+}
 
 pub fn get_routes() -> Vec<Route> {
-	return routes![list, get, create, update];
+	return routes![list, get, create, update, delete];
 }
