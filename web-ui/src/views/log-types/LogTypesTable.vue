@@ -45,7 +45,7 @@
 										</v-list-tile-content>
 									</v-list-tile>
 
-									<v-list-tile disabled>
+									<v-list-tile @click.stop="showDeleteFn(props.item)">
 										<v-list-tile-avatar>
 											<v-icon small>fas fa-trash-alt</v-icon>
 										</v-list-tile-avatar>
@@ -60,6 +60,13 @@
 				</v-data-table>
 			</v-flex>
 		</v-layout>
+
+		<delete-dialog
+			:show.sync="deleteDialog.show"
+			:url="`/api/log-type/${this.deleteDialog.id}`"
+			close-on-success
+			@success="deleted"
+		></delete-dialog>
 	</container-view>
 </template>
 
@@ -73,6 +80,10 @@
 		{
 			return {
 				loading: false,
+				deleteDialog: {
+					show: false,
+					id: null
+				},
 				headers: [
 					{text: 'ID', value: 'id'},
 					{text: 'Name', value: 'name'},
@@ -104,6 +115,15 @@
 						this.items = data.list;
 					}
 				}).finally(() => this.loading = false);
+			},
+			showDeleteFn(item)
+			{
+				this.deleteDialog.show = true;
+				this.deleteDialog.id = item.id;
+			},
+			deleted()
+			{
+				this.fetch();
 			}
 		}
 	};
