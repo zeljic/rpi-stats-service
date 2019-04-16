@@ -57,6 +57,12 @@ impl<'r> Responder<'r> for AsJsonError {
 	}
 }
 
+impl<'t> From<&'t str> for AsJsonError {
+	fn from(reason: &str) -> Self {
+		Self::new(reason)
+	}
+}
+
 pub trait ModelAs<'de> {
 	type OutputJson: Serialize + Deserialize<'de> + From<Rc<Self::OutputModel>>;
 	type OutputModel;
