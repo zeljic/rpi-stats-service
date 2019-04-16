@@ -43,7 +43,7 @@
 						</v-card-text>
 						<v-card-actions>
 							<v-spacer></v-spacer>
-							<v-btn type="submit" color="default" to="/">Cancel</v-btn>
+							<v-btn type="submit" color="default" to="/log-types">Cancel</v-btn>
 							<v-btn type="submit" color="primary" :disabled="disabled">Apply</v-btn>
 						</v-card-actions>
 					</v-card>
