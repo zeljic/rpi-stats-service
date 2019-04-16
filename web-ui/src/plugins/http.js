@@ -4,28 +4,27 @@ class Http
 {
 	constructor(Vue)
 	{
-		this.$store = new Vue().$store;
+		this.vue = new Vue();
 	}
 
 	install(Vue)
 	{
 		Vue.prototype.$http = (conf) =>
 		{
-			const token = this.$store.getters['user/token'];
+			const token = this.vue.$store.getters['user/token'];
 
 			if (token)
 			{
 				axios.defaults.headers.common['X-Token'] = token;
 			}
 
-			console.log('$http sent request');
+			this.vue.snackLoading(true);
 
 			const promise = axios(conf);
 
-			promise.finally(() =>
-			{
-				console.log('$http got response');
-			});
+			promise.catch(reason => console.log(reason));
+
+			promise.finally(() => this.vue.snackLoading(false));
 
 			return promise;
 		};
