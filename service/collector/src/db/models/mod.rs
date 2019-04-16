@@ -11,7 +11,7 @@ pub mod schema;
 pub mod user;
 pub mod user_mesh;
 
-use rocket::{Request, Response, response::Responder};
+use rocket::{response::Responder, Request, Response};
 use std::error;
 use std::fmt;
 use std::io::Cursor;
