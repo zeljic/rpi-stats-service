@@ -52,6 +52,10 @@ impl User {
 
 		Err(Box::new(AsJsonError::new("Unable to read user by id")))
 	}
+
+	pub fn get_id(&self) -> i32 {
+		self.as_model().id
+	}
 }
 
 impl<'de> ModelAs<'de> for User {
