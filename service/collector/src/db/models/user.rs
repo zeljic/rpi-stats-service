@@ -24,9 +24,9 @@ type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 #[table_name = "user"]
 pub struct UserModel {
 	pub id: i32,
-	pub name: Option<String>,
-	pub email: Option<String>,
-	pub password: Option<String>,
+	pub name: String,
+	pub email: String,
+	pub password: String,
 	pub enabled: bool,
 }
 
@@ -144,8 +144,8 @@ impl From<Rc<UserModel>> for UserJson {
 
 		UserJson {
 			id: Option::from(user_model.id),
-			name: model.name.unwrap_or_else(|| String::from("")),
-			email: model.email.unwrap_or_else(|| String::from("")),
+			name: model.name,
+			email: model.email,
 			enabled: model.enabled,
 		}
 	}
