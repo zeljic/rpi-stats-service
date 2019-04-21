@@ -128,19 +128,13 @@ pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue
 			match diesel::delete(log_type_dsl::log_type.filter(log_type_dsl::id.eq(id as i32)))
 				.execute(&conn.0)
 			{
-				Ok(_size) => {
-					Ok(json!({
-						"status": true
-					}))
-				}
-				Err(e) => {
-					Err(e.description().into())
-				}
+				Ok(_size) => Ok(json!({
+					"status": true
+				})),
+				Err(e) => Err(e.description().into()),
 			}
 		}
-		Err(e) => {
-			Err(e.description().into())
-		}
+		Err(e) => Err(e.description().into()),
 	}
 }
 
