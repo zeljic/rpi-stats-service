@@ -16,7 +16,7 @@ use crate::db::models::schema::instance::dsl as instance_dsl;
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
-#[derive(Debug, Queryable, Identifiable, Clone)]
+#[derive(Debug, Queryable, Identifiable, Clone, QueryableByName)]
 #[table_name = "instance"]
 pub struct InstanceModel {
 	pub id: i32,
@@ -28,11 +28,11 @@ pub struct InstanceModel {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct InstanceJson {
-	pub id: i32,
-	pub uuid: String,
-	pub name: String,
+	pub id: Option<i32>,
+	pub uuid: Option<String>,
+	pub name: Option<String>,
 	pub description: Option<String>,
-	pub enabled: bool,
+	pub enabled: Option<bool>,
 }
 
 pub struct Instance {
@@ -77,15 +77,19 @@ impl<'de> ModelAs<'de> for Instance {
 }
 
 impl From<Rc<InstanceModel>> for InstanceJson {
-	fn from(model: Rc<InstanceModel>) -> Self {
-		let model = model.as_ref().clone();
+	fn from(rc_model: Rc<InstanceModel>) -> Self {
+		rc_model.as_ref().clone().into()
+	}
+}
 
-		InstanceJson {
-			id: model.id,
-			uuid: model.uuid,
-			name: model.name,
-			description: model.description,
-			enabled: model.enabled,
+impl From<InstanceModel> for InstanceJson {
+	fn from(instance_model: InstanceModel) -> Self {
+		Self {
+			id: Option::from(instance_model.id),
+			uuid: Option::from(instance_model.uuid),
+			name: Option::from(instance_model.name),
+			description: instance_model.description,
+			enabled: Option::from(instance_model.enabled),
 		}
 	}
 }

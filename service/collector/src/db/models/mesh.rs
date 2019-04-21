@@ -12,7 +12,7 @@ use std::error;
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
-#[derive(Debug, Queryable, Identifiable, Clone)]
+#[derive(Debug, Queryable, Identifiable, Clone, QueryableByName)]
 #[table_name = "mesh"]
 pub struct MeshModel {
 	pub id: i32,
@@ -55,15 +55,19 @@ impl<'de> ModelAs<'de> for Mesh {
 	}
 }
 
-impl From<Rc<MeshModel>> for MeshJson {
-	fn from(rc_model: Rc<MeshModel>) -> Self {
-		let model = rc_model.as_ref().clone();
-
+impl From<MeshModel> for MeshJson {
+	fn from(model: MeshModel) -> Self {
 		Self {
 			id: Option::from(model.id),
 			name: Option::from(model.name),
 			description: model.description,
 			enabled: Option::from(model.enabled),
 		}
+	}
+}
+
+impl From<Rc<MeshModel>> for MeshJson {
+	fn from(rc_model: Rc<MeshModel>) -> Self {
+		rc_model.as_ref().clone().into()
 	}
 }
