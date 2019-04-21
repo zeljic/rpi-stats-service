@@ -129,17 +129,17 @@ pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue
 				.execute(&conn.0)
 			{
 				Ok(_size) => {
-					return Ok(json!({
+					Ok(json!({
 						"status": true
-					}));
+					}))
 				}
 				Err(e) => {
-					return Err(e.description().into());
+					Err(e.description().into())
 				}
 			}
 		}
 		Err(e) => {
-			return Err(e.description().into());
+			Err(e.description().into())
 		}
 	}
 }
