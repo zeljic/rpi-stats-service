@@ -1,52 +1,34 @@
 use crate::db::models::user::User;
-use crate::db::models::user::UserModel;
-use crate::db::models::ModelAs;
+
 use crate::db::DatabaseConnection;
 use rocket::Route;
 use rocket_contrib::json::JsonValue;
 
-use crate::db::models::mesh::Mesh;
 use crate::db::models::mesh::MeshJson;
-use crate::db::models::user_mesh::UserMeshModel;
+use crate::db::models::mesh::MeshModel;
+
 use diesel::prelude::*;
+use diesel::sql_types::Integer;
+
+use std::error::Error;
 
 #[get("/", format = "application/json")]
-pub fn get(conn: DatabaseConnection, user: User) -> JsonValue {
-	let model: UserModel = user.as_model().as_ref().clone();
+pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn Error>> {
+	let list: Vec<MeshJson> = diesel::sql_query(
+		"select * from mesh where id in (select mesh_id from user_mesh where user_id = $1)",
+	)
+	.bind::<Integer, _>(user.get_id())
+	.get_results::<MeshModel>(&conn.0)?
+	.into_iter()
+	.map(std::convert::Into::into)
+	.collect::<Vec<MeshJson>>();
 
-	if let Ok(list) = UserMeshModel::belonging_to(&model).load::<UserMeshModel>(&conn.0) {
-		println!("{:?}", &list);
-
-		let list = list
-			.iter()
-			.filter_map(|item| {
-				if let Ok(item) = Mesh::new(&conn, item.mesh_id) {
-					return Some(item);
-				} else {
-					return None;
-				}
-			})
-			.filter_map(|item| {
-				if let Ok(item) = item.as_json() {
-					return Some(item);
-				} else {
-					return None;
-				}
-			})
-			.collect::<Vec<MeshJson>>();
-
-		return json!({
-			"status": true,
-			"count": list.len(),
-			"list": list
-		});
-	}
-
-	json!({
-		"status": false
-	})
+	Ok(json!({
+		"status": true,
+		"list": list
+	}))
 }
 
 pub fn get_routes() -> Vec<Route> {
-	return routes![get];
+	return routes![list];
 }
