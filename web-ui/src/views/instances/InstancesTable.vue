@@ -29,7 +29,7 @@
 					<template v-slot:items="props">
 						<td class="w-10">{{props.item.id}}</td>
 						<td class="w-200">{{props.item.name}}</td>
-						<td class="w-200">{{props.item.uuid}}</td>
+						<td class="w-300">{{props.item.uuid}}</td>
 						<td>{{props.item.description}}</td>
 						<td class="text-xs-center">
 							<v-icon small>fas {{props.item.enabled ? 'fa-check' : 'fa-clock'}}</v-icon>
@@ -37,7 +37,7 @@
 						<td class="w-10 pa-0 text-xs-center">
 							<TableBarButton>
 								<v-list dense>
-									<v-list-tile :to="'/instances/update/' + props.item.id">
+									<v-list-tile :to="'/instances/edit/' + props.item.id">
 										<v-list-tile-avatar>
 											<v-icon small>fas fa-pencil-alt</v-icon>
 										</v-list-tile-avatar>

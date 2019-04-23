@@ -36,7 +36,7 @@
 						<td class="w-10 pa-0 text-xs-center">
 							<TableBarButton>
 								<v-list dense>
-									<v-list-tile :to="'/log-types/update/' + props.item.id">
+									<v-list-tile :to="'/log-types/edit/' + props.item.id">
 										<v-list-tile-avatar>
 											<v-icon small>fas fa-pencil-alt</v-icon>
 										</v-list-tile-avatar>
