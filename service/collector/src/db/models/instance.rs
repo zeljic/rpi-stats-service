@@ -1,8 +1,4 @@
-use rocket::http::Status;
-use rocket::{request, Data};
-use rocket::request::FromRequest;
-use rocket::Outcome;
-use rocket::Request;
+use rocket::{http::Status, request, request::FromRequest, Outcome, Request};
 
 use crate::db::models::schema::instance;
 use crate::db::models::AsJsonError;

@@ -30,7 +30,7 @@ pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn E
 
 #[get("/<id>", format = "application/json")]
 pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
-	let instance: InstanceJson = instance_dsl::instance
+	let item: InstanceJson = instance_dsl::instance
 		.filter(instance_dsl::id.eq(id))
 		.filter(instance_dsl::user_id.eq(user.get_id()))
 		.first::<InstanceModel>(&conn.0)?
@@ -38,7 +38,7 @@ pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, B
 
 	Ok(json!({
 		"status": true,
-		"item": instance
+		"item": item
 	}))
 }
 
@@ -68,7 +68,7 @@ pub fn update(
 	conn: DatabaseConnection,
 	user: User,
 	update_request: Json<InstanceJson>,
-	id: i32
+	id: i32,
 ) -> Result<JsonValue, Box<dyn Error>> {
 	let update_request: &InstanceJson = &update_request.into_inner();
 
