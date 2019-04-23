@@ -8,10 +8,12 @@ create table "user" (
 
 create table "instance" (
 	"id" serial not null primary key,
-	"uuid" varchar(64) not null unique,
+	"user_id" integer not null references "user"("id"),
+	"uuid" varchar(36) not null unique,
 	"name" varchar(16) not null,
 	"description" text,
-	"enabled" boolean not null default 'f'
+	"enabled" boolean not null default 'f',
+	unique("user_id", "uuid")
 );
 
 create table "log_type" (

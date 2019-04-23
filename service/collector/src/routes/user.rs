@@ -91,7 +91,7 @@ pub fn profile_change_password(
 
 	let user_model = user.as_model();
 
-	if user_model.password.clone().unwrap() == generate_password(new_password.old.as_str()) {
+	if user_model.password == generate_password(new_password.old.as_str()) {
 		if let Ok(user) = user_dsl::user
 			.filter(user_dsl::id.eq(user_model.id))
 			.first::<UserModel>(&conn.0)

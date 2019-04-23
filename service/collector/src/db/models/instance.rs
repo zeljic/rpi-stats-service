@@ -1,5 +1,5 @@
 use rocket::http::Status;
-use rocket::request;
+use rocket::{request, Data};
 use rocket::request::FromRequest;
 use rocket::Outcome;
 use rocket::Request;
@@ -20,15 +20,18 @@ type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 #[table_name = "instance"]
 pub struct InstanceModel {
 	pub id: i32,
+	pub user_id: i32,
 	pub uuid: String,
 	pub name: String,
 	pub description: Option<String>,
 	pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Insertable, AsChangeset)]
+#[table_name = "instance"]
 pub struct InstanceJson {
 	pub id: Option<i32>,
+	pub user_id: Option<i32>,
 	pub uuid: Option<String>,
 	pub name: Option<String>,
 	pub description: Option<String>,
@@ -86,6 +89,7 @@ impl From<InstanceModel> for InstanceJson {
 	fn from(instance_model: InstanceModel) -> Self {
 		Self {
 			id: Option::from(instance_model.id),
+			user_id: Option::from(instance_model.user_id),
 			uuid: Option::from(instance_model.uuid),
 			name: Option::from(instance_model.name),
 			description: instance_model.description,
