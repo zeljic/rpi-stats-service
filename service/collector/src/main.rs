@@ -6,9 +6,9 @@ extern crate rocket;
 extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
-
 #[macro_use]
 extern crate diesel;
+extern crate failure;
 
 use crate::session::session_manager::init_rwlock_session_manager;
 use rocket_contrib::json::JsonValue;
@@ -16,6 +16,7 @@ use rocket_contrib::json::JsonValue;
 use crate::db::DatabaseConnection;
 
 mod db;
+mod error;
 mod routes;
 mod session;
 
