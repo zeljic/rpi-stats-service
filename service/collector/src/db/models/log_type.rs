@@ -8,6 +8,8 @@ use diesel::prelude::*;
 
 use crate::db::models::user::{User, UserModel};
 
+use crate::error::Result;
+
 #[derive(Debug, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "log_type"]
 #[belongs_to(UserModel, foreign_key = "user_id")]
@@ -35,7 +37,7 @@ pub struct LogType {
 }
 
 impl LogType {
-	pub fn new(conn: &DatabaseConnection, id: i32) -> crate::error::Result<Self> {
+	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		let model = log_type_dsl::log_type
 			.find(id)
 			.first::<LogTypeModel>(&conn.0)?;
