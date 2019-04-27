@@ -50,22 +50,20 @@ pub fn create(
 	conn: DatabaseConnection,
 	user: User,
 	create_request: Json<LogTypeJson>,
-) -> JsonValue {
-	let mut create_request: LogTypeJson = create_request.into_inner();
+) -> Result<JsonValue, Box<dyn Error>> {
+	let mut create_request = create_request.into_inner();
 
 	create_request.user_id.get_or_insert(user.get_id());
 
-	match diesel::insert_into(log_type_dsl::log_type)
+	let item: LogTypeJson = diesel::insert_into(log_type_dsl::log_type)
 		.values(&create_request)
-		.execute(&conn.0)
-	{
-		Ok(_) => json!({
-			"status": true
-		}),
-		Err(_) => json!({
-			"status": false
-		}),
-	}
+		.get_result::<LogTypeModel>(&conn.0)?
+		.into();
+
+	Ok(json!({
+		"status": true,
+		"item": item
+	}))
 }
 
 #[put("/<id>", format = "application/json", data = "<update_request>")]
@@ -95,26 +93,20 @@ pub fn update(
 }
 
 #[delete("/<id>")]
-pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, AsJsonError> {
-	let log_type = LogType::new(&conn, id as i32);
+pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
+	let log_type_model = LogType::new(&conn, id)?.as_model();
 
-	match log_type {
-		Ok(log_type) => {
-			if !log_type.is_user_id(&user) {
-				return Err("Security issue".into());
-			}
-
-			match diesel::delete(log_type_dsl::log_type.filter(log_type_dsl::id.eq(id as i32)))
-				.execute(&conn.0)
-			{
-				Ok(_size) => Ok(json!({
-					"status": true
-				})),
-				Err(e) => Err(e.description().into()),
-			}
-		}
-		Err(e) => Err(e.description().into()),
+	if log_type_model.user_id != user.get_id() {
+		return Err(Box::new(AsJsonError::new("Security issue")));
 	}
+
+	diesel::delete(log_type_dsl::log_type)
+		.filter(log_type_dsl::id.eq(id))
+		.execute(&conn.0)?;
+
+	Ok(json!({
+		"status": true
+	}))
 }
 
 pub fn get_routes() -> Vec<Route> {
