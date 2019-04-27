@@ -7,16 +7,14 @@ use rocket_contrib::json::{Json, JsonValue};
 
 use crate::db::models::ModelAs;
 
-use crate::db::models::AsJsonError;
-
 use crate::db::models::log_type::LogTypeJson;
 use diesel::prelude::*;
 
 use crate::db::models::schema::log_type::dsl as log_type_dsl;
-use std::error::Error;
+use crate::error::ErrorKind;
 
 #[get("/", format = "application/json")]
-pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn Error>> {
+pub fn list(conn: DatabaseConnection, user: User) -> crate::error::Result<JsonValue> {
 	let list = log_type_dsl::log_type
 		.filter(log_type_dsl::user_id.eq(user.get_id()))
 		.get_results::<LogTypeModel>(&conn.0)?
@@ -32,7 +30,7 @@ pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn E
 }
 
 #[get("/<id>", format = "application/json")]
-pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
+pub fn get(conn: DatabaseConnection, user: User, id: i32) -> crate::error::Result<JsonValue> {
 	let item: LogTypeJson = log_type_dsl::log_type
 		.filter(log_type_dsl::id.eq(id))
 		.filter(log_type_dsl::user_id.eq(user.get_id()))
@@ -50,7 +48,7 @@ pub fn create(
 	conn: DatabaseConnection,
 	user: User,
 	create_request: Json<LogTypeJson>,
-) -> Result<JsonValue, Box<dyn Error>> {
+) -> crate::error::Result<JsonValue> {
 	let mut create_request = create_request.into_inner();
 
 	create_request.user_id.get_or_insert(user.get_id());
@@ -72,17 +70,15 @@ pub fn update(
 	user: User,
 	update_request: Json<LogTypeJson>,
 	id: i32,
-) -> Result<JsonValue, Box<dyn Error>> {
-	let update_request = &update_request.into_inner();
-
+) -> crate::error::Result<JsonValue> {
 	let log_type_model = LogType::new(&conn, id)?.as_model();
 
 	if log_type_model.user_id != user.get_id() {
-		return Err(Box::new(AsJsonError::new("Security issue")));
+		return Err(ErrorKind::AccessDenied.into());
 	}
 
 	let item: LogTypeJson = diesel::update(log_type_model.as_ref())
-		.set(update_request)
+		.set(update_request.into_inner())
 		.get_result::<LogTypeModel>(&conn.0)?
 		.into();
 
@@ -93,11 +89,11 @@ pub fn update(
 }
 
 #[delete("/<id>")]
-pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
+pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> crate::error::Result<JsonValue> {
 	let log_type_model = LogType::new(&conn, id)?.as_model();
 
 	if log_type_model.user_id != user.get_id() {
-		return Err(Box::new(AsJsonError::new("Security issue")));
+		return Err(ErrorKind::AccessDenied.into());
 	}
 
 	diesel::delete(log_type_dsl::log_type)

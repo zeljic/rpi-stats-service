@@ -1,16 +1,12 @@
 use crate::db::models::schema::log_type;
 use crate::db::models::ModelAs;
 use crate::db::DatabaseConnection;
-use std::error;
 use std::rc::Rc;
 
 use crate::db::models::schema::log_type::dsl as log_type_dsl;
-use crate::db::models::AsJsonError;
 use diesel::prelude::*;
 
 use crate::db::models::user::{User, UserModel};
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[derive(Debug, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "log_type"]
@@ -39,30 +35,18 @@ pub struct LogType {
 }
 
 impl LogType {
-	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
-		if let Ok(model) = log_type_dsl::log_type
+	pub fn new(conn: &DatabaseConnection, id: i32) -> crate::error::Result<Self> {
+		let model = log_type_dsl::log_type
 			.find(id)
-			.first::<LogTypeModel>(&conn.0)
-		{
-			return Ok(LogType {
-				model: Rc::new(model),
-			});
-		}
+			.first::<LogTypeModel>(&conn.0)?;
 
-		Err(Box::new(AsJsonError::new("Unable to read log_type by id")))
+		Ok(LogType {
+			model: Rc::new(model),
+		})
 	}
 
 	pub fn is_user_id(&self, user: &User) -> bool {
 		self.model.user_id == user.as_model().id
-	}
-
-	pub fn from_json(conn: &DatabaseConnection, json: &LogTypeJson) -> Result<Self> {
-		match json.id {
-			None => Err(Box::new(AsJsonError::new(
-				"Unable to read log_type_json id",
-			))),
-			Some(id) => LogType::new(conn, id),
-		}
 	}
 }
 
