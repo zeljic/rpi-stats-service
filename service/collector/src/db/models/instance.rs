@@ -1,16 +1,13 @@
 use rocket::{http::Status, request, request::FromRequest, Outcome, Request};
 
 use crate::db::models::schema::instance;
-use crate::db::models::AsJsonError;
 use crate::db::models::ModelAs;
 use crate::db::DatabaseConnection;
+use crate::error::Result;
 use diesel::prelude::*;
-use std::error;
 use std::rc::Rc;
 
 use crate::db::models::schema::instance::dsl as instance_dsl;
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[derive(Debug, Queryable, Identifiable, Clone, QueryableByName)]
 #[table_name = "instance"]
@@ -40,29 +37,23 @@ pub struct Instance {
 
 impl Instance {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
-		if let Ok(model) = instance_dsl::instance
+		let model = instance_dsl::instance
 			.find(id)
-			.first::<InstanceModel>(&conn.0)
-		{
-			return Ok(Instance {
-				model: Rc::new(model),
-			});
-		}
+			.first::<InstanceModel>(&conn.0)?;
 
-		Err(Box::new(AsJsonError::new("Unable to read user by id")))
+		Ok(Self {
+			model: Rc::new(model),
+		})
 	}
 
 	pub fn new_by_uuid(conn: &DatabaseConnection, uuid: &str) -> Result<Self> {
-		if let Ok(model) = instance_dsl::instance
+		let model = instance_dsl::instance
 			.filter(instance_dsl::uuid.eq(uuid))
-			.first::<InstanceModel>(&conn.0)
-		{
-			return Ok(Instance {
-				model: Rc::new(model),
-			});
-		}
+			.first::<InstanceModel>(&conn.0)?;
 
-		Err(Box::new(AsJsonError::new("Unable to read user by uuid")))
+		Ok(Instance {
+			model: Rc::new(model),
+		})
 	}
 }
 

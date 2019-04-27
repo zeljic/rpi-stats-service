@@ -7,13 +7,14 @@ use crate::db::DatabaseConnection;
 use diesel::prelude::*;
 
 use rocket::Route;
-use std::error::Error;
 
 use crate::db::models::schema::instance::dsl as instance_dsl;
-use crate::db::models::{AsJsonError, ModelAs};
+use crate::db::models::ModelAs;
+
+use crate::error::{ErrorKind, Result};
 
 #[get("/", format = "application/json")]
-pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn Error>> {
+pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue> {
 	let list = instance_dsl::instance
 		.filter(instance_dsl::user_id.eq(user.get_id()))
 		.get_results::<InstanceModel>(&conn.0)?
@@ -29,7 +30,7 @@ pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn E
 }
 
 #[get("/<id>", format = "application/json")]
-pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
+pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue> {
 	let item: InstanceJson = instance_dsl::instance
 		.filter(instance_dsl::id.eq(id))
 		.filter(instance_dsl::user_id.eq(user.get_id()))
@@ -47,7 +48,7 @@ pub fn create(
 	conn: DatabaseConnection,
 	user: User,
 	create_request: Json<InstanceJson>,
-) -> Result<JsonValue, Box<dyn Error>> {
+) -> Result<JsonValue> {
 	let mut create_request: InstanceJson = create_request.into_inner();
 
 	create_request.user_id.get_or_insert(user.get_id());
@@ -69,13 +70,13 @@ pub fn update(
 	user: User,
 	update_request: Json<InstanceJson>,
 	id: i32,
-) -> Result<JsonValue, Box<dyn Error>> {
+) -> Result<JsonValue> {
 	let update_request: &InstanceJson = &update_request.into_inner();
 
 	let instance_model = Instance::new(&conn, id)?.as_model();
 
 	if instance_model.user_id != user.get_id() {
-		return Err(Box::new(AsJsonError::new("Security issue")));
+		return Err(ErrorKind::AccessDenied.into());
 	}
 
 	let item: InstanceJson = diesel::update(instance_model.as_ref())
@@ -90,11 +91,11 @@ pub fn update(
 }
 
 #[delete("/<id>")]
-pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue, Box<dyn Error>> {
+pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue> {
 	let instance_model = Instance::new(&conn, id)?.as_model();
 
 	if instance_model.user_id != user.get_id() {
-		return Err(Box::new(AsJsonError::new("Security issue")));
+		return Err(ErrorKind::AccessDenied.into());
 	}
 
 	diesel::delete(instance_model.as_ref()).execute(&conn.0)?;
@@ -105,7 +106,7 @@ pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue
 }
 
 #[get("/generate-uuid", format = "application/json")]
-pub fn generate_uuid(_user: User) -> Result<JsonValue, Box<dyn Error>> {
+pub fn generate_uuid(_user: User) -> Result<JsonValue> {
 	Ok(json!({
 		"status": true,
 		"uuid": uuid::Uuid::new_v4().to_hyphenated().to_string()
