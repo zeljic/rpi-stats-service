@@ -93,7 +93,7 @@
 			submit()
 			{
 				this.$http({
-					url: '/api/log-type' + (this.mode === this.mode.CREATE ? '' : '/' + this.id),
+					url: '/api/log-type' + (this.mode === model.mode.CREATE ? '' : '/' + this.id),
 					method: this.mode === model.mode.CREATE ? 'POST' : 'PUT',
 					data: {
 						...this.item
