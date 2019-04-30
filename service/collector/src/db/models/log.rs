@@ -1,10 +1,7 @@
 use crate::db::models::schema::log;
-use std::error;
 
 use crate::db::models::ModelAs;
 use std::rc::Rc;
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 #[derive(Debug, Queryable, Identifiable, Associations, PartialEq, Clone)]
 #[table_name = "log"]
@@ -37,13 +34,4 @@ impl From<Rc<LogModel>> for LogJson {
 	fn from(_model: Rc<LogModel>) -> Self {
 		unimplemented!()
 	}
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct LogCreateRequest {
-	pub log_type_name: String,
-	#[serde(skip_serializing, skip_deserializing)]
-	pub log_type_id: u32,
-	pub value: f64,
-	pub date_time: u32,
 }

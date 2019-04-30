@@ -10,10 +10,10 @@ use crate::db::models::mesh::MeshModel;
 use diesel::prelude::*;
 use diesel::sql_types::Integer;
 
-use std::error::Error;
+use crate::error::Result;
 
 #[get("/", format = "application/json")]
-pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue, Box<dyn Error>> {
+pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue> {
 	let list: Vec<MeshJson> = diesel::sql_query(
 		"select * from mesh where id in (select mesh_id from user_mesh where user_id = $1)",
 	)
