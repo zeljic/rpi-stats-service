@@ -7,10 +7,7 @@ use std::rc::Rc;
 use crate::db::models::schema::mesh;
 use crate::db::models::ModelAs;
 
-use crate::db::models::AsJsonError;
-use std::error;
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+use crate::error::Result;
 
 #[derive(Debug, Queryable, Identifiable, Clone, QueryableByName)]
 #[table_name = "mesh"]
@@ -36,13 +33,11 @@ pub struct Mesh {
 
 impl Mesh {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
-		if let Ok(model) = mesh_dsl::mesh.find(id).first::<MeshModel>(&conn.0) {
-			return Ok(Mesh {
-				model: Rc::new(model),
-			});
-		}
+		let model = mesh_dsl::mesh.find(id).first::<MeshModel>(&conn.0)?;
 
-		Err(Box::new(AsJsonError::new("Unable to read user by id")))
+		return Ok(Mesh {
+			model: Rc::new(model),
+		});
 	}
 }
 
