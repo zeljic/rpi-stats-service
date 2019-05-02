@@ -1,6 +1,7 @@
-# Linden Collector Service (and Rust Client)
-Workspace of Linden Collector (server), and Linden Rust Client
+# Linden
 
-System/OS|Build Result
-----:|----
-Travis / Unix       |[![Build Status](https://travis-ci.org/zeljic/linden.svg?branch=develop)](https://travis-ci.org/zeljic/linden)
+## Collector
+[Collector](collector) project contains back-end code of linden project that collect information from meshes (instances).
+Also provide API for Web-UI administration panel.
+## Web UI
+[Web UI](web-ui) project contains front-end code of linden project.
