@@ -11,57 +11,7 @@ pub mod schema;
 pub mod user;
 pub mod user_mesh;
 
-use rocket::{response::Responder, Request, Response};
-use std::error;
-use std::fmt;
-use std::io::Cursor;
-
-#[derive(Debug, Clone)]
-pub struct AsJsonError {
-	reason: String,
-}
-
-impl AsJsonError {
-	pub fn new(reason: &str) -> Self {
-		AsJsonError {
-			reason: reason.to_string(),
-		}
-	}
-}
-
-impl fmt::Display for AsJsonError {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "{}", self.reason)
-	}
-}
-
-impl error::Error for AsJsonError {
-	fn description(&self) -> &str {
-		self.reason.as_str()
-	}
-}
-
-impl<'r> Responder<'r> for AsJsonError {
-	fn respond_to(self, _request: &Request) -> rocket::response::Result<'r> {
-		let content = json!({
-			"status": false,
-			"reason": self.reason
-		})
-		.0
-		.to_string();
-
-		Response::build()
-			.header(rocket::http::ContentType::JSON)
-			.sized_body(Cursor::new(content))
-			.ok()
-	}
-}
-
-impl<'t> From<&'t str> for AsJsonError {
-	fn from(reason: &str) -> Self {
-		Self::new(reason)
-	}
-}
+use crate::error::Result;
 
 pub trait ModelAs<'de> {
 	type OutputJson: Serialize + Deserialize<'de> + From<Rc<Self::OutputModel>>;
@@ -69,7 +19,7 @@ pub trait ModelAs<'de> {
 
 	fn as_model(&self) -> Rc<Self::OutputModel>;
 
-	fn as_json(&self) -> Result<Self::OutputJson, Box<dyn std::error::Error>> {
+	fn as_json(&self) -> Result<Self::OutputJson> {
 		Ok(self.as_model().into())
 	}
 }

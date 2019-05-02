@@ -6,6 +6,8 @@ use rocket::State;
 use rocket_contrib::json::{Json, JsonValue};
 use std::sync::RwLock;
 
+use crate::error::{ErrorKind, Result};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LoginRequest {
 	email: Option<String>,
@@ -14,25 +16,21 @@ pub struct LoginRequest {
 
 #[post("/", format = "application/json", data = "<login_request>")]
 pub fn login(
-	connection: DatabaseConnection,
+	conn: DatabaseConnection,
 	login_request: Json<LoginRequest>,
 	session_manager: State<RwLock<SessionManager>>,
-) -> JsonValue {
+) -> Result<JsonValue> {
 	let login_request = login_request.clone();
 
 	let email = login_request.email.unwrap_or_default();
 	let password = login_request.password.unwrap_or_default();
 
-	match User::login(&connection, session_manager.inner(), &email, &password) {
-		Some(token) => json!({
-			"status": true,
-			"token": &token.key
-		}),
-		None => json!({
-			"status": true,
-			"reason": "Invalid username and password"
-		}),
-	}
+	let token: Token = User::login(&conn, session_manager.inner(), &email, &password)?;
+
+	Ok(json!({
+		"status": true,
+		"token": &token.key
+	}))
 }
 
 #[get("/", format = "application/json")]
@@ -44,21 +42,20 @@ pub fn logged(token: Token) -> JsonValue {
 }
 
 #[get("/logout")]
-pub fn logout(token: Token, session_manager: State<RwLock<SessionManager>>) -> JsonValue {
-	if let Ok(mut session_manager) = session_manager.write() {
-		if let Some(index) = session_manager.get_session_index_token(&token) {
-			session_manager.sessions.remove(index);
+pub fn logout(token: Token, session_manager: State<RwLock<SessionManager>>) -> Result<JsonValue> {
+	let mut session_manager = session_manager
+		.try_write()
+		.map_err(|_| ErrorKind::AccessDenied)?;
 
-			return json!({
-				"status": true
-			});
-		}
-	}
+	let index = session_manager
+		.get_session_index_token(&token)
+		.ok_or_else(|| ErrorKind::AccessDenied)?;
 
-	json!({
-		"status": false,
-		"message": "Unknown error"
-	})
+	session_manager.sessions.remove(index);
+
+	Ok(json!({
+		"status": true
+	}))
 }
 
 pub fn get_routes() -> Vec<rocket::Route> {
