@@ -19,7 +19,7 @@ use crate::error::Result;
 pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue> {
 	let list = log_type_dsl::log_type
 		.filter(log_type_dsl::user_id.eq(user.get_id()))
-		.get_results::<LogTypeModel>(&conn.0)?
+		.get_results::<LogTypeModel>(&*conn)?
 		.into_iter()
 		.map(std::convert::Into::into)
 		.collect::<Vec<LogTypeJson>>();
@@ -36,7 +36,7 @@ pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue> {
 	let item: LogTypeJson = log_type_dsl::log_type
 		.filter(log_type_dsl::id.eq(id))
 		.filter(log_type_dsl::user_id.eq(user.get_id()))
-		.first::<LogTypeModel>(&conn.0)?
+		.first::<LogTypeModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -57,7 +57,7 @@ pub fn create(
 
 	let item: LogTypeJson = diesel::insert_into(log_type_dsl::log_type)
 		.values(&create_request)
-		.get_result::<LogTypeModel>(&conn.0)?
+		.get_result::<LogTypeModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -81,7 +81,7 @@ pub fn update(
 
 	let item: LogTypeJson = diesel::update(log_type_model.as_ref())
 		.set(update_request.into_inner())
-		.get_result::<LogTypeModel>(&conn.0)?
+		.get_result::<LogTypeModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -100,7 +100,7 @@ pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue
 
 	diesel::delete(log_type_dsl::log_type)
 		.filter(log_type_dsl::id.eq(id))
-		.execute(&conn.0)?;
+		.execute(&*conn)?;
 
 	Ok(json!({
 		"status": true

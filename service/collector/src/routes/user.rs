@@ -35,14 +35,14 @@ pub fn profile_update(
 
 	if let Ok(user) = user_dsl::user
 		.filter(user_dsl::id.eq(model.id))
-		.first::<UserModel>(&conn.0)
+		.first::<UserModel>(&*conn)
 	{
 		let result = diesel::update(&user)
 			.set((
 				user_dsl::email.eq(&user_json.email),
 				user_dsl::name.eq(&user_json.name),
 			))
-			.execute(&conn.0);
+			.execute(&*conn);
 
 		if result.is_ok() {
 			if let Ok(user) = User::new(&conn, model.id) {
@@ -94,11 +94,11 @@ pub fn profile_change_password(
 	if user_model.password == generate_password(new_password.old.as_str()) {
 		if let Ok(user) = user_dsl::user
 			.filter(user_dsl::id.eq(user_model.id))
-			.first::<UserModel>(&conn.0)
+			.first::<UserModel>(&*conn)
 		{
 			let update_result = diesel::update(&user)
 				.set(user_dsl::password.eq(generate_password(new_password.new.as_str())))
-				.execute(&conn.0);
+				.execute(&*conn);
 
 			if update_result.is_ok() {
 				if let Ok(user) = User::new(&conn, user_model.id) {

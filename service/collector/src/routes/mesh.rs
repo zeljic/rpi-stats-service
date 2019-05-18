@@ -18,7 +18,7 @@ pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue> {
 		"select * from mesh where id in (select mesh_id from user_mesh where user_id = $1)",
 	)
 	.bind::<Integer, _>(user.get_id())
-	.get_results::<MeshModel>(&conn.0)?
+	.get_results::<MeshModel>(&*conn)?
 	.into_iter()
 	.map(std::convert::Into::into)
 	.collect::<Vec<MeshJson>>();

@@ -17,7 +17,7 @@ use crate::error::{ErrorKind, Result};
 pub fn list(conn: DatabaseConnection, user: User) -> Result<JsonValue> {
 	let list = instance_dsl::instance
 		.filter(instance_dsl::user_id.eq(user.get_id()))
-		.get_results::<InstanceModel>(&conn.0)?
+		.get_results::<InstanceModel>(&*conn)?
 		.into_iter()
 		.map(std::convert::Into::into)
 		.collect::<Vec<InstanceJson>>();
@@ -34,7 +34,7 @@ pub fn get(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue> {
 	let item: InstanceJson = instance_dsl::instance
 		.filter(instance_dsl::id.eq(id))
 		.filter(instance_dsl::user_id.eq(user.get_id()))
-		.first::<InstanceModel>(&conn.0)?
+		.first::<InstanceModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -55,7 +55,7 @@ pub fn create(
 
 	let item: InstanceJson = diesel::insert_into(instance_dsl::instance)
 		.values(create_request)
-		.get_result::<InstanceModel>(&conn.0)?
+		.get_result::<InstanceModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -81,7 +81,7 @@ pub fn update(
 
 	let item: InstanceJson = diesel::update(instance_model.as_ref())
 		.set(update_request)
-		.get_result::<InstanceModel>(&conn.0)?
+		.get_result::<InstanceModel>(&*conn)?
 		.into();
 
 	Ok(json!({
@@ -98,7 +98,7 @@ pub fn delete(conn: DatabaseConnection, user: User, id: i32) -> Result<JsonValue
 		return Err(ErrorKind::AccessDenied.into());
 	}
 
-	diesel::delete(instance_model.as_ref()).execute(&conn.0)?;
+	diesel::delete(instance_model.as_ref()).execute(&*conn)?;
 
 	Ok(json!({
 		"status": true
