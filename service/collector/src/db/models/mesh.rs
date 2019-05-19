@@ -35,9 +35,9 @@ impl Mesh {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		let model = mesh_dsl::mesh.find(id).first::<MeshModel>(conn.raw())?;
 
-		return Ok(Mesh {
+		Ok(Mesh {
 			model: Rc::new(model),
-		});
+		})
 	}
 }
 
