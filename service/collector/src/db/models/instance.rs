@@ -39,7 +39,7 @@ impl Instance {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		let model = instance_dsl::instance
 			.find(id)
-			.first::<InstanceModel>(&conn.0)?;
+			.first::<InstanceModel>(conn.raw())?;
 
 		Ok(Self {
 			model: Rc::new(model),
@@ -49,7 +49,7 @@ impl Instance {
 	pub fn new_by_uuid(conn: &DatabaseConnection, uuid: &str) -> Result<Self> {
 		let model = instance_dsl::instance
 			.filter(instance_dsl::uuid.eq(uuid))
-			.first::<InstanceModel>(&conn.0)?;
+			.first::<InstanceModel>(conn.raw())?;
 
 		Ok(Instance {
 			model: Rc::new(model),

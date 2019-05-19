@@ -40,7 +40,7 @@ impl LogType {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		let model = log_type_dsl::log_type
 			.find(id)
-			.first::<LogTypeModel>(&conn.0)?;
+			.first::<LogTypeModel>(conn.raw())?;
 
 		Ok(LogType {
 			model: Rc::new(model),

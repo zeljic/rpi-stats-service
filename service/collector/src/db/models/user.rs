@@ -45,7 +45,7 @@ pub struct User {
 impl User {
 	pub fn new(conn: &DatabaseConnection, id: i32) -> Result<Self> {
 		Ok(User {
-			model: Rc::new(user_dsl::user.find(id).first::<UserModel>(&conn.0)?),
+			model: Rc::new(user_dsl::user.find(id).first::<UserModel>(conn.raw())?),
 		})
 	}
 
@@ -61,7 +61,7 @@ impl User {
 			.filter(user_dsl::email.eq(email))
 			.filter(user_dsl::password.eq(hashed_password))
 			.filter(user_dsl::enabled.eq(true))
-			.first::<UserModel>(&conn.0)?;
+			.first::<UserModel>(conn.raw())?;
 
 		let token = Token::new();
 
