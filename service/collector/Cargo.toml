@@ -6,16 +6,16 @@ edition = "2018"
 
 [dependencies]
 rust-crypto = "0.2.36"
-rand = "0.6.5"
+rand = "0.7.0"
 failure = "0.1.5"
 
-serde = "1.0.92"
-serde_derive = "1.0.92"
-serde_json = "1.0.39"
+serde = "1.0.99"
+serde_derive = "1.0.99"
+serde_json = "1.0.40"
 
-rocket = "0.4.1"
-rocket_codegen = "0.4.1"
-rocket_contrib = { version = "0.4.1", default-features = false, features = ["json", "diesel_postgres_pool"] }
+rocket = "0.4.2"
+rocket_codegen = "0.4.2"
+rocket_contrib = { version = "0.4.2", default-features = false, features = ["json", "diesel_postgres_pool"] }
 
 diesel = { version = "1.4.2", features = ["postgres"] }
 
